@@ -1,0 +1,100 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    paths-ignore:
+      - '**.md'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**.md'
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    runs-on: self-hosted
+    env:
+      ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set build variables
+        run: |
+          echo "PROFILE=prod" >> $GITHUB_ENV
+          echo "SHORT_SHA=${GITHUB_SHA::7}" >> $GITHUB_ENV
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build wms frontend
+        run: npm run build
+
+      - name: Docker build wms frontend
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          docker build \
+            -f Dockerfile \
+            -t ${{ secrets.REGISTRY_URL }}/wms-frontend:${{ env.PROFILE }}-${{ env.SHORT_SHA }} \
+            .
+
+      - name: Docker login
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: |
+          if [ -n "${{ secrets.REGISTRY_USERNAME }}" ]; then
+            echo "${{ secrets.REGISTRY_PASSWORD }}" | \
+              docker login ${{ secrets.REGISTRY_URL }} \
+              -u ${{ secrets.REGISTRY_USERNAME }} --password-stdin
+          else
+            echo "REGISTRY_USERNAME not set, skipping login (unauthenticated registry)"
+          fi
+
+      - name: Docker push wms frontend
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        run: docker push ${{ secrets.REGISTRY_URL }}/wms-frontend:${{ env.PROFILE }}-${{ env.SHORT_SHA }}
+
+      # ---- Gitee（当前启用）----
+      - name: Update gitops image tags (Gitee)
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+        env:
+          GITEE_TOKEN: ${{ secrets.GITEE_TOKEN }}
+          WMS_FRONTEND_IMAGE: ${{ secrets.REGISTRY_URL }}/wms-frontend:${{ env.PROFILE }}-${{ env.SHORT_SHA }}
+          OVERLAY: frontend/wms-frontend/overlays/${{ env.PROFILE }}
+        run: |
+          git clone https://oauth2:${GITEE_TOKEN}@gitee.com/zuminli/k8s-gitops.git
+          cd k8s-gitops
+          sed -i "s|image: .*wms-frontend.*|image: ${WMS_FRONTEND_IMAGE}|" "${OVERLAY}/wms-frontend-patch.yaml"
+          git config user.email "ci@flyingjack.com"
+          git config user.name "CI Bot"
+          git add "${OVERLAY}/wms-frontend-patch.yaml"
+          if git diff --cached --quiet; then
+            echo "Image tags unchanged, nothing to push"
+          else
+            git commit -m "chore(wms-frontend): update image to ${{ env.PROFILE }}-${{ env.SHORT_SHA }}"
+            git push
+          fi
+
+      # ---- GitHub（备用，切回时取消注释）----
+      # - name: Update gitops image tags (GitHub)
+      #   env:
+      #     GITOPS_TOKEN: ${{ steps.app-token.outputs.token }}
+      #     WMS_FRONTEND_IMAGE: ${{ secrets.REGISTRY_URL }}/wms-frontend:${{ env.PROFILE }}-${{ env.SHORT_SHA }}
+      #     OVERLAY: frontend/wms-frontend/overlays/${{ env.PROFILE }}
+      #   run: |
+      #     git clone https://x-access-token:${GITOPS_TOKEN}@github.com/flyingjack-cloud/k8s-gitops.git
+      #     cd k8s-gitops
+      #     sed -i "s|image: .*wms-frontend.*|image: ${WMS_FRONTEND_IMAGE}|" "${OVERLAY}/wms-frontend-patch.yaml"
+      #     git config user.email "ci@flyingjack.com"
+      #     git config user.name "CI Bot"
+      #     git add "${OVERLAY}/wms-frontend-patch.yaml"
+      #     if git diff --cached --quiet; then
+      #       echo "Image tags unchanged, nothing to push"
+      #     else
+      #       git commit -m "chore(wms-frontend): update image to ${{ env.PROFILE }}-${{ env.SHORT_SHA }}"
+      #       git push
+      #     fi

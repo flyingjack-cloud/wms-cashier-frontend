@@ -1,0 +1,43 @@
+<h1 class="order-confirm-header">订单详情</h1>
+<mat-divider></mat-divider>
+
+<div class="confirm-price-container">实收价格: <span class="confirm-price">￥ {{ this.totalSellingPrice | number: '1.2-2' }}</span></div>
+
+<form class="order-confirm-form" [formGroup]="orderConfirmForm">
+    <mat-form-field appearance="outline">
+        <mat-label>销售日期:</mat-label>
+        <input matInput [matDatepicker]="picker" [max]="today" formControlName="date">
+        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-datepicker #picker></mat-datepicker>
+    </mat-form-field>
+
+    <mat-form-field>
+        <mat-label>销售备注:</mat-label>
+        <textarea matInput type="text" formControlName="remark"></textarea>
+    </mat-form-field>
+
+    <button mat-raised-button color="primary" type="button" (click)="order()" [disabled]="!orderConfirmForm.valid || loading">提交</button>
+</form>
+
+<mat-slide-toggle class="extra" [(ngModel)]="detailRequired">是否录入国补信息？</mat-slide-toggle>
+@if (detailRequired) {
+<mat-form-field class="extra">
+    <mat-label>客户姓名</mat-label>
+    <input matInput [(ngModel)]="customerDetail.name">
+</mat-form-field>
+
+<mat-form-field class="extra">
+    <mat-label>客户手机号</mat-label>
+    <input matInput [(ngModel)]="customerDetail.phone">
+</mat-form-field>
+
+<mat-form-field class="extra">
+    <mat-label>客户地址</mat-label>
+    <textarea matInput [(ngModel)]="customerDetail.address"> </textarea>
+</mat-form-field>
+}
+
+<app-receipt #receipt></app-receipt>
+@if(loading){
+  <mat-progress-bar mode="query"></mat-progress-bar>
+}

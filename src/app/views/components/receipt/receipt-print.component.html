@@ -1,0 +1,77 @@
+<div id="print-section">
+  <html>
+  <body>
+  <div class="a4">
+    <div class="title"></div>
+    <div class="des">{{ group.storeName }}销售明细</div>
+    <div class="detail"></div>
+    <table width="100%" class="mt1" border="0" cellspacing="0" cellpadding="0">
+      <tr>
+        <td colspan="8" class="head" style="text-align:center"><b>客户信息</b></td>
+      </tr>
+
+      <tr>
+        <td colspan="3" style="text-align:left">客户姓名：{{ customerDetail.name }}</td>
+        <td colspan="5" style="text-align:left">收货地址：{{ customerDetail.address }}</td>
+      </tr>
+
+      <tr>
+        <td colspan="3" style="text-align:left">客户电话：{{ customerDetail.phone }}</td>
+        <td colspan="5" style="text-align:left">销售日期: {{ today | localDate: 'yyyy-MM-dd HH:mm:ss'}}</td>
+      </tr>
+
+      <tr>
+        <td colspan="8" style="text-align:center"><b>销售信息</b></td>
+      </tr>
+
+      <tr>
+        <td>序号</td>
+        <td>品牌</td>
+        <td>型号</td>
+        <td>串号IMEI</td>
+        <td>单价</td>
+        <td>数量</td>
+        <td>单位</td>
+        <td>金额</td>
+      </tr>
+      @for (order of data; track order.id; let idx = $index){
+        <tr>
+          <td rowspan="2" style="min-width:40px"><span>{{ idx + 1 }}</span></td>
+          <td><span>{{ models[idx] }}</span></td>
+          <td><span>{{ order.merchandise.category.name }}</span></td>
+          <td><span>{{ order.merchandise.imei }}</span></td>
+          <td><span>{{ order.merchandise.price | number : '1.2-2'}}</span></td>
+          <td style="min-width:40px"><span>1</span></td>
+          <td style="min-width:40px"><span>台</span></td>
+          <td><span>{{ order.sellingPrice | number : '1.2-2' }}</span></td>
+        </tr>
+        <tr>
+          <td colspan="3" style="text-align:left;"><span style="font-weight: bold;">串号2:</span></td>
+          <td colspan="2" style="text-align:left;"><span style="font-weight: bold;">SN:</span></td>
+          <td colspan="2" style="text-align:left;"><span style="font-weight: bold;">69码: </span></td>
+        </tr>
+      }
+      <tr>
+        <td colspan="4" style="text-align:left">合计金额（大写）： {{ total() | chinese_capital}}元</td>
+        <td colspan="3">{{ data.length }}</td>
+        <td colspan="1">{{ total() | number : '1.2-2'}}</td>
+      </tr>
+    </table>
+    <div class="clear"></div>
+    <div class="detail mt1 bottom">
+      <div class="item">销售人员：{{ userprofile.nickname }}     </div>
+      <div class="item" style="width:30%;">客户（签字）：</div>
+    </div>
+    <div class="detail">
+      <div class="item">店铺地址：{{ group.address }} </div>
+    </div>
+    <div class="detail">
+      <div class="item">谢谢惠顾，欢迎下次光临！！！ </div>
+    </div>
+  </div>
+  </body>
+
+  </html>
+</div>
+
+<!--<button mat-raised-button color="primary" styleSheetFile="assets/css/receipt.css" printSectionId="print-section" ngxPrint>print</button>-->

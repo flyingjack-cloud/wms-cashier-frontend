@@ -1,0 +1,16 @@
+<div class="category-box">
+    <span>品牌：</span>
+    <mat-button-toggle-group name="rootCategories" aria-label="Root Categories">
+      <mat-button-toggle *ngFor="let category of rootCategories | async" (change)="rootSelect(category)" value="{{ category.id }}">{{ category.name }}</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <span>型号：</span>
+    <mat-button-toggle-group name="modelCategories" aria-label="Model Categories">
+        <mat-button-toggle  *ngFor="let category of modelCategories | async" (change)="modelSelect(category)" value="{{ category.id }}">{{ category.name }}</mat-button-toggle>
+    </mat-button-toggle-group>
+
+<!--    <span>二级型号：</span>-->
+<!--    <mat-button-toggle-group name="secondCategories" aria-label="Second Categories">-->
+<!--        <mat-button-toggle *ngFor="let category of secondCategories | async" (change)="selectCategory(category)" value="{{ category.id }}">{{ category.name }}</mat-button-toggle>-->
+<!--    </mat-button-toggle-group>-->
+</div>

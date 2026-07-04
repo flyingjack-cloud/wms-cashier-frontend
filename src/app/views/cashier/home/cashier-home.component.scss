@@ -1,0 +1,86 @@
+.cashier-home {
+  height: 90vh;
+  width: 70vw;
+  padding-left: 5rem;
+  padding-top: 2rem;
+
+  display: flex;
+  flex-wrap: wrap;
+}
+
+#welcome-logo {
+  width: 50%;
+  height: 50%;
+
+  min-width: 300px;
+  min-height: 300px;
+  max-width: 600px;
+  max-height: 600px;
+}
+
+#welcome-content > h1 {
+  letter-spacing: 1rem;
+  line-height: 3rem;
+}
+
+#welcome-content > p {
+  color: #7f7f7f;
+  font-weight: lighter;
+  letter-spacing: 0.2rem;
+  line-height: 2rem;
+}
+
+
+.card-content {
+  color: #7f7f7f;
+  font-weight: normal;
+}
+
+.msg-card {
+  width: 30rem;
+  margin-right: 5rem;
+  margin-top: 2rem;
+}
+
+.contact-icon {
+  transform: scale(2);
+}
+
+.contact-content {
+  width: 80vw;
+}
+
+.contact-card-container {
+  display: flex;
+}
+
+h2 {
+  margin-top: 10vh;
+}
+
+.contact-card-container > h2 {
+  grid-area: header;
+  width: 100%;
+  font-weight: 200;
+}
+
+.contact-card {
+  grid-area: email;
+  margin-right: 5rem;
+  width: 15rem;
+  background-color: white;
+  box-shadow: 0px 10px 15px -3px rgba(0,0,0,0.1);
+  border-radius: 20px;
+
+  text-align: center;
+
+  padding-top: 2rem;
+  padding-bottom: 2rem;
+}
+
+.contact-card p {
+  color: #7f7f7f;
+  font-weight: lighter;
+}
+
+

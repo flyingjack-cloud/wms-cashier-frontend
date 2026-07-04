@@ -1,0 +1,47 @@
+section {
+  margin: 1rem;
+  box-shadow: 0px 10px 15px -3px rgba(0,0,0,0.1);
+  padding: 1rem;
+
+  button {
+    margin-left: 1em;
+  }
+}
+
+.statistics {
+  display: flex;
+  padding: 1rem;
+}
+.mat-mdc-form-field {
+  font-size: 14px;
+  width: 100%;
+}
+
+.statistics-card {
+  margin-left: 1rem;
+  padding-right: 1rem;
+  border-right: 1px dashed #bbbbbb;
+  flex-grow: 1;
+
+  h1 {
+    margin-top: 0.25rem;
+  }
+}
+
+.statistics-card-title {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  margin: 0;
+}
+
+.statistics-card-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.statistics-card-action {
+  margin-left: 0.5rem;
+}
+

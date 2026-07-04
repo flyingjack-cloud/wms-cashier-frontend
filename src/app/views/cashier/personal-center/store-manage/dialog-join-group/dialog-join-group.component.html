@@ -1,0 +1,31 @@
+<div>
+  <h3>加入店铺(二选一)</h3>
+  <button id="close-button" type="button" [disabled]="loading" mat-icon-button matDialogClose><mat-icon>close</mat-icon></button>
+
+  <div class="field">
+    <mat-form-field>
+      <label>通过店铺编号加入</label>
+      <input matInput type="text" [formControl]="identity" placeholder="店铺编号">
+      <mat-hint>询问店主或者管理员获取店铺编号</mat-hint>
+      @if(identity.invalid && identity.touched){
+        <mat-error>编号不能为空</mat-error>
+      }
+    </mat-form-field>
+    <button mat-raised-button type="button" color="primary" [disabled]="identity.invalid || loading" (click)="joinByIdentity()">加入</button>
+  </div>
+
+  <div class="field">
+    <mat-form-field>
+      <label>通过店主手机号码加入</label>
+      <input matInput type="text" [formControl]="phone" placeholder="手机账号" maxlength="11">
+      @if(phone.invalid && phone.touched){
+        <mat-error>手机号码不正确</mat-error>
+      }
+    </mat-form-field>
+    <button mat-raised-button type="button" (click)="joinByPhone()" color="primary" [disabled]="phone.invalid || loading">加入</button>
+  </div>
+  @if (loading) {
+    <mat-progress-bar mode="query"></mat-progress-bar>
+  }
+</div>
+

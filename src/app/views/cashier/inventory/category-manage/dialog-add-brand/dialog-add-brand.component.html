@@ -1,0 +1,21 @@
+<form>
+  <h4 >添加品牌（一级大分类）</h4>
+  <mat-form-field>
+    <mat-label>品牌名称</mat-label>
+    <input matInput [formControl]="brandName" />
+  </mat-form-field>
+  @if (brandName.invalid && (brandName.dirty || brandName.touched)) {
+    <mat-error>名称不能为空</mat-error>
+  }
+</form>
+
+<mat-dialog-actions>
+  <button mat-raised-button mat-dialog-close>关闭</button>
+  <button mat-raised-button [disabled]="brandName.invalid || loading" (click)="submit()">提交</button>
+</mat-dialog-actions>
+
+@if (loading){
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+}
+
+

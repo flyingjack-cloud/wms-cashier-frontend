@@ -1,0 +1,14 @@
+// Screen breakpoint mixins
+// min-web: smaller desktop / tablet landscape
+@mixin min-web {
+  @media (min-width: 1024px) and (max-width: 1440px) {
+    @content;
+  }
+}
+
+// web: large desktop
+@mixin web {
+  @media (min-width: 1441px) {
+    @content;
+  }
+}

@@ -1,0 +1,41 @@
+<div class="container">
+  <mat-form-field>
+    <mat-label>品牌</mat-label>
+    <mat-select #brand (selectionChange)="selectBrand($event.value)">
+      @for (category of brands | async;track category){
+        <mat-option [value]="category">{{ category.name }}
+        </mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <button color="primary" type="button" mat-flat-button (click)="addBrand()">添加品牌</button >
+</div>
+
+<div class="container">
+  <mat-form-field>
+    <mat-label>型号</mat-label>
+    <mat-select (selectionChange)="selectCategory($event.value)">
+      @for (category of models | async;track category){
+        <mat-option [value]="category">{{ category.name }}</mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+  <button color="primary" type="button" [disabled]="!brand.value" (click)="addModel(brand.value)" mat-flat-button>添加型号</button >
+</div>
+
+@if (cateSelected && showDelete){
+  <mat-card class="card-container">
+    <mat-card-header>
+      <mat-card-title>当前选择</mat-card-title>
+      <mat-card-subtitle>注意：分类下还存在商品时不允许删除</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p>编号:{{ cateSelected.id }}</p>
+      <p>名称: {{ cateSelected.name }}</p>
+    </mat-card-content>
+    <mat-card-actions>
+      <button mat-raised-button color="accent" (click)="deleteCate()">删除</button>
+    </mat-card-actions>
+  </mat-card>
+}
+

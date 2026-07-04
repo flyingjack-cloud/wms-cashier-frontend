@@ -1,0 +1,30 @@
+@use "../center" as *;
+
+.blank-store {
+  display: flex;
+  align-items: center;
+  padding-left: 1rem;
+
+  button {
+    margin-right: 1rem;
+  }
+}
+
+#request-show {
+  padding-left: $margin-to-left;
+
+  div {
+    color: #cc6033;
+    margin-bottom: 1rem;
+
+    span {
+      margin-left: 0.5rem;
+      margin-right: 2rem;
+    }
+  }
+
+  p {
+    font-weight: lighter;
+    color: #7f7f7f;
+  }
+}

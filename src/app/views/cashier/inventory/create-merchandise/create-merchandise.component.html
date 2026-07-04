@@ -1,0 +1,51 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <h2 class="two-margin">新建商品</h2>
+  <app-category-manage (selectEvent)="select($event)" [showDelete]="false"></app-category-manage>
+  <!--  隐藏input用于交换数据-->
+  <input style="display:none" type="number" formControlName="cate">
+  <div class="two-margin price-container">
+    <mat-form-field >
+      <mat-label>成本价</mat-label>
+      <input matInput formControlName="cost" type="number">
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>售价</mat-label>
+      <input matInput formControlName="price" type="number">
+    </mat-form-field>
+  </div>
+
+  <mat-form-field class="two-margin">
+    <mat-label>串号</mat-label>
+    <input id="imeiInput"  matInput type="text" #imei>
+    <button id="imeiBtn" mat-icon-button preventEnter color="accent" matSuffix (click)="addImei(imei)" ><mat-icon>add</mat-icon></button>
+    <mat-hint>
+     点击右侧添加按钮添加！ 已添加串号如下：
+    </mat-hint>
+  </mat-form-field>
+
+  <ol>
+    @for (imei of imeiSet; track imei) {
+      <li>{{ imei }} <button mat-icon-button (click)="deleteImeiFromSet(imei)" ><mat-icon>close</mat-icon></button></li>
+    }
+  </ol>
+
+  <mat-form-field class="two-margin">
+    <mat-label>入库时间(默认值为当前时间)</mat-label>
+    <input matInput formControlName="date"  [matDatepicker]="datepicker">
+    <mat-hint>年/月/日</mat-hint>
+    <mat-datepicker-toggle matIconSuffix [for]="datepicker"></mat-datepicker-toggle>
+    <mat-datepicker #datepicker>
+      <mat-datepicker-actions>
+        <button mat-button matDatepickerCancel>取消</button>
+        <button mat-raised-button color="primary" matDatepickerApply>确定</button>
+      </mat-datepicker-actions>
+    </mat-datepicker>
+  </mat-form-field>
+
+  <button mat-raised-button color="primary" type="submit" [disabled]="form.invalid">提交</button>
+</form>
+
+@if (loading){
+  <mat-progress-bar mode="query"></mat-progress-bar>
+}

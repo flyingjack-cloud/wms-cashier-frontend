@@ -1,0 +1,37 @@
+mat-sidenav-container {
+  min-height: 100%;;
+}
+
+mat-toolbar {
+  height: 5vh;
+}
+
+mat-drawer-container {
+  min-height: 95vh;
+  width: 100%;
+}
+
+mat-drawer{
+  width: 200px;
+  height: 100%;
+}
+
+.main-container {
+  width: 100vw;
+  height: 100vh;
+  overflow: scroll;
+}
+
+#logout-button {
+  position: absolute;
+  right: 1rem;
+}
+#tour-button {
+  position: absolute;
+  right: 10rem;
+}
+
+a {
+  text-decoration: none;
+  color: white;
+}

@@ -1,0 +1,62 @@
+<div class="flex-nowrap">
+    <div class="select-area">
+        <app-search (selectEvent)="updateList($event)"></app-search>
+
+        @if (selectedMerchandise){
+          <div class="list-area">
+            <mat-card class="merchandise-detail">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon color="primary">smartphone</mat-icon>
+                  {{ selectedMerchandise.category.name }}
+                </mat-card-title>
+                <mat-card-subtitle>串号:{{ selectedMerchandise.imei }}</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <p>价格:{{ selectedMerchandise.price }}</p>
+                <mat-divider></mat-divider>
+              </mat-card-content>
+              <mat-card-actions>
+                <button mat-button (click)="addToCart(selectedMerchandise)">
+                  <mat-icon color="accent">add_shopping_cart</mat-icon>
+                  <span class="card-button">结账</span>
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          </div>
+        }
+    </div>
+    <div class="order-area">
+        <div class="receipt-shape">
+            <div class="receipt-header">
+                <object data="assets/img/receipt.svg" id="receipt" type="image/svg+xml"></object>
+                <p>消费明细</p>
+                <mat-divider></mat-divider>
+            </div>
+
+            <div class="receipt-content">
+              <div class="receipt-card" *ngFor="let item of cart">
+                <div id="model">
+                  <mat-icon id="grocery-icon" color="primary">sell</mat-icon>
+                  <span>{{ item.merchandise.category.name }}</span>
+                </div>
+                <div id="close">
+                  <button mat-icon-button (click)="removeFromCart(item)"><mat-icon color="accent">close</mat-icon></button>
+                </div>
+                <div id="imei">串号: {{ item.merchandise.imei }}</div>
+                <div id="price">
+                  价格：￥
+                  <input type="number" required (input)="changePrice($event, item)" [value]="item.sellingPrice" [placeholder]="item.sellingPrice">
+                </div>
+              </div>
+            </div>
+
+          <mat-divider></mat-divider>
+          <div class="receipt-footer">
+            <button mat-raised-button (click)="orderConfirm()" color="primary" [disabled]="cart.length == 0" >提交</button>
+            <button mat-button color="primary" (click)="clearCart()">清除</button>
+          </div>
+        </div>
+    </div>
+</div>
+

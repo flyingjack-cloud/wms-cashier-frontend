@@ -1,0 +1,57 @@
+<div class="cashier-home">
+  <div id="welcome-content">
+    <h1>欢迎使用</h1>
+    <p>今天是{{ today | localDate: 'yyyy年MM月dd日'}} <br>祝您生意兴隆</p>
+    <mat-card class="msg-card">
+      <mat-card-header>
+        <div mat-card-avatar><mat-icon color="primary">notifications</mat-icon></div>
+        <mat-card-title>重要消息</mat-card-title>
+        <mat-card-subtitle>{{ warnNotice.publishTime | localDate: 'yyyy年MM月dd日 | HH:mm:ss'}}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content class="card-content" [innerHTML]="warnNotice.content">
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="msg-card">
+      <mat-card-header>
+        <div mat-card-avatar><mat-icon color="accent">notifications</mat-icon></div>
+        <mat-card-title>更新通告</mat-card-title>
+        <mat-card-subtitle>{{ updateNotice.publishTime | localDate: 'yyyy年MM月dd日 HH:mm:ss'}}</mat-card-subtitle>
+      </mat-card-header>
+      <mat-card-content class="card-content" [innerHTML]="updateNotice.content">
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <div id="welcome-logo">
+    <object data="assets/img/cat.svg"></object>
+  </div>
+
+  <div class="contact-content">
+    <h2>联系方式</h2>
+    <div class="contact-card-container">
+      <div class="contact-card">
+        <mat-icon class="contact-icon" color="primary">email</mat-icon>
+        <h4>电子邮件</h4>
+        <p>{{"cnjacklee@vip.qq.com"}}</p>
+      </div>
+
+      <div class="contact-card">
+        <mat-icon class="contact-icon" style="color: #07c160">group</mat-icon>
+        <h4>微信</h4>
+        <p>cnjaclee</p>
+      </div>
+
+      <div class="contact-card">
+        <mat-icon class="contact-icon" style="color: #fa9d3b">phone</mat-icon>
+        <h4>电话</h4>
+        <p>13675823946</p>
+      </div>
+    </div>
+  </div>
+
+
+</div>
+
+
+

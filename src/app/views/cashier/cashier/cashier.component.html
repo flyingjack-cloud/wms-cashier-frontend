@@ -1,0 +1,51 @@
+<div class="main-container">
+  <toast></toast>
+
+  <mat-toolbar color="primary">
+    <!-- 侧边栏通过这里切换 -->
+    <button (click)="sidenav.toggle()" mat-icon-button>
+      <mat-icon>menu</mat-icon>
+    </button>
+    <a routerLink="/cashier/home">销售宝</a>
+    <button id="tour-button" (click)="clearTour()" mat-flat-button color="primary">开启新手导航</button>
+    <button id="logout-button" (click)="logout()" mat-flat-button color="primary">退出登录</button>
+  </mat-toolbar>
+
+  <mat-drawer-container hasBackdrop="false">
+    <mat-drawer #sidenav mode="side" opened>
+      <mat-nav-list>
+        <mat-list-item routerLink="/cashier/shopping">
+          <mat-icon class="nav-icon" matListItemIcon>shopping_cart</mat-icon>
+          <div matListItemTitle>收银</div>
+          <div matListItemLine>消费收款</div>
+        </mat-list-item>
+
+        <mat-list-item routerLink="/cashier/inventory">
+          <mat-icon matListItemIcon>warehouse</mat-icon>
+          <div matListItemTitle>库存</div>
+          <div matListItemLine>进入库</div>
+        </mat-list-item>
+
+        <mat-list-item routerLink="/cashier/statistics">
+          <mat-icon matListItemIcon>monitoring</mat-icon>
+          <div matListItemTitle>数据</div>
+          <div matListItemLine>历史账单</div>
+        </mat-list-item>
+
+        <mat-list-item [routerLink]=" requestUsers == 0 ? '/cashier/center' : '/cashier/center/staff'">
+          @if(requestUsers == 0) {
+            <mat-icon matListItemIcon>badge</mat-icon>
+          } @else {
+            <mat-icon [matBadge]="requestUsers" matBadgeColor="primary" matTooltip="有新的加入申请" matListItemIcon>badge</mat-icon>
+          }
+          <div matListItemTitle>个人中心</div>
+          <div matListItemLine>设置</div>
+        </mat-list-item>
+      </mat-nav-list>
+    </mat-drawer>
+
+    <mat-drawer-content>
+      <router-outlet></router-outlet>
+    </mat-drawer-content>
+  </mat-drawer-container>
+</div>

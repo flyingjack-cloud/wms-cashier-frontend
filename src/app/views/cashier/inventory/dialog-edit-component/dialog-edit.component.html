@@ -1,0 +1,44 @@
+<h2 mat-dialog-title>修改商品</h2>
+<mat-dialog-content>
+  <h4>编号： {{ data.id }} 型号: {{ data.category.name }}</h4>
+  <form [formGroup]="form" (ngSubmit)="onSubmit()">
+    <mat-form-field>
+      <mat-label>进价</mat-label>
+      <input matInput type="number" formControlName="cost" />
+      @if(form.controls.cost.invalid && form.touched){
+        <mat-error>
+          价格必须为1-999999
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>售价</mat-label>
+      <input matInput type="number" formControlName="price" />
+      @if(form.controls.price.invalid && form.touched){
+        <mat-error>
+          价格必须为1-999999
+        </mat-error>
+      }
+    </mat-form-field>
+
+    <mat-form-field>
+      <mat-label>串号</mat-label>
+      <input matInput formControlName="imei" />
+      @if(form.controls.imei.invalid && form.touched){
+        <mat-error>
+           串号不能为空
+        </mat-error>
+      }
+    </mat-form-field>
+    <mat-divider></mat-divider>
+    <mat-dialog-actions>
+      <button mat-button mat-dialog-close type="button" [disabled]="loading" >取消</button>
+      <button mat-raised-button color="accent" type="submit" [disabled]="loading" >提交修改</button>
+    </mat-dialog-actions>
+   </form>
+</mat-dialog-content>
+
+@if (loading){
+  <mat-progress-bar mode="query"></mat-progress-bar>
+}

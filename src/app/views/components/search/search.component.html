@@ -1,0 +1,24 @@
+<div class="search">
+  <form (submit)="submit($event)">
+    <mat-form-field class="search-field">
+      <mat-label>搜索：</mat-label>
+      <input matInput type="search" [formControl]="searchControl" [matAutocomplete]="auto" placeholder="输入型号或者串号">
+      @if (searchControl.hasError("emptyResult")){
+        <mat-error>
+          未搜索到相关商品
+        </mat-error>
+      }
+
+      <button mat-icon-button color="primary" type="submit" matSuffix><mat-icon>search</mat-icon></button>
+      <mat-autocomplete (optionSelected)="select($event)" [displayWith]="displayFn"  #auto="matAutocomplete">
+        @for (item of result | async; track item) {
+          <mat-option [value]="item">
+            <span>{{ item.category.name }}</span> |
+            <small>{{ item.imei }}</small> |
+            <small>￥ {{ item.price }}</small>
+          </mat-option>
+        }
+      </mat-autocomplete>
+    </mat-form-field>
+  </form>
+</div>

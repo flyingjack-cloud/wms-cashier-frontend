@@ -1,0 +1,62 @@
+<main class="welcome-shell">
+  <div class="tech-grid"></div>
+
+  <header class="welcome-header">
+    <a class="brand" routerLink="/welcome">
+      <mat-icon>bolt</mat-icon>
+      <span>销售宝</span>
+    </a>
+    <button mat-flat-button type="button" class="header-login" (click)="login()">
+      <mat-icon>login</mat-icon>
+      登录使用系统
+    </button>
+  </header>
+
+  <section class="welcome-hero">
+    <div class="hero-copy">
+      <div class="status-chip">
+        <span></span>
+        当前未登录
+      </div>
+      <h1>你还没有登录</h1>
+      <p>
+        登录后即可使用收银、库存管理、销售统计和店铺协作功能。
+      </p>
+      <div class="hero-actions">
+        <button mat-flat-button type="button" class="primary-action" (click)="login()">
+          <mat-icon>login</mat-icon>
+          登录使用系统
+        </button>
+        <a mat-button routerLink="/welcome" class="secondary-action">
+          <mat-icon>shield</mat-icon>
+          统一账号中心认证
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-visual" aria-hidden="true">
+      <div class="scan-line"></div>
+      <img src="assets/img/receipt.svg" alt="">
+      <div class="metric metric-top">
+        <span>库存同步</span>
+        <strong>ONLINE</strong>
+      </div>
+      <div class="metric metric-bottom">
+        <span>销售看板</span>
+        <strong>READY</strong>
+      </div>
+    </div>
+  </section>
+
+  <section class="feature-strip" aria-label="系统功能">
+    @for (feature of features; track feature.title) {
+      <article class="feature-item">
+        <mat-icon>{{ feature.icon }}</mat-icon>
+        <div>
+          <h2>{{ feature.title }}</h2>
+          <p>{{ feature.text }}</p>
+        </div>
+      </article>
+    }
+  </section>
+</main>

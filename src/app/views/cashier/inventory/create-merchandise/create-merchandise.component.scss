@@ -1,0 +1,40 @@
+form {
+  margin-left: 3rem;
+}
+
+form > * {
+  display: block;
+  width: 40vw;
+}
+
+.two-margin {
+  margin-left: 2rem;
+}
+
+.price-container > *{
+  padding-right: 2rem;
+}
+
+ol {
+  margin-left: 2rem;
+  margin-top: -0.3rem;
+  color: #858585;
+}
+
+li button {
+  height: 1rem;
+  width: 1rem;
+}
+
+button[type=submit] {
+  width: 100px;
+  margin-top: 1rem;
+  margin-left: 2.5rem;
+}
+
+
+mat-progress-bar {
+  width: 50%;
+  margin-left: 4rem;
+  margin-top: 2rem;
+}

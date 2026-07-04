@@ -1,0 +1,39 @@
+<div id="center-container">
+  <div class="center-header">
+    <div class="center-avatar">
+      <div class="avatar">
+        <img [src]="(profile | async)?.avatar" alt="头像">
+      </div>
+
+      <div class="avatar-content">
+        <p>{{ (profile | async)?.nickname || "未设置" }}</p>
+        <svg viewBox="0 0 16.6667 15" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+          <defs/>
+          <path id="矢量 116" d="M0.833344 0L15.8333 0C16.0543 0 16.2663 0.0877991 16.4226 0.24408C16.5788 0.40036 16.6667 0.612305 16.6667 0.833344L16.6667 14.1667C16.6667 14.3877 16.5788 14.5997 16.4226 14.7559C16.2663 14.9122 16.0543 15 15.8333 15L0.833344 15C0.612305 15 0.40036 14.9122 0.24408 14.7559C0.0877991 14.5997 0 14.3877 0 14.1667L0 0.833344C0 0.612305 0.0877991 0.40036 0.24408 0.24408C0.40036 0.0877991 0.612305 0 0.833344 0L0.833344 0ZM7.5 4.58334L7.5 10.4167L9.16666 10.4167L9.16666 4.58334L7.5 4.58334ZM7.26251 4.58334L5.50082 4.58334L4.25333 8.01083L3.00583 4.58334L1.24417 4.58334L3.42001 10.3867L5.08667 10.3867L7.26251 4.58334ZM11.6667 8.75L12.9167 8.75C13.4692 8.75 13.9991 8.53049 14.3898 8.13983C14.7805 7.74908 15 7.21918 15 6.66666C15 6.11417 14.7805 5.58423 14.3898 5.19351C13.9991 4.80283 13.4692 4.58334 12.9167 4.58334L10 4.58334L10 10.4167L11.6667 10.4167L11.6667 8.75ZM11.6667 7.08334L11.6667 6.25L12.9167 6.25C13.0272 6.25 13.1332 6.29391 13.2113 6.37201C13.2894 6.45016 13.3333 6.55615 13.3333 6.66666C13.3333 6.77716 13.2894 6.88318 13.2113 6.96133C13.1332 7.03943 13.0272 7.08334 12.9167 7.08334L11.6667 7.08334Z" fill="#F2D782" fill-opacity="1.000000" fill-rule="evenodd"/>
+        </svg>
+      </div>
+    </div>
+
+    <mat-list>
+      <mat-list-item routerLink="/cashier/center/profile">
+        <mat-icon matListItemIcon>privacy_tip</mat-icon>
+        <div matListItemTitle>我的信息</div>
+      </mat-list-item>
+      <mat-list-item routerLink="/cashier/center/store">
+        <mat-icon matListItemIcon>store_front</mat-icon>
+        <div matListItemTitle>店铺信息</div>
+      </mat-list-item>
+      <mat-list-item routerLink="/cashier/center/staff">
+        <mat-icon matListItemIcon>diversity_1</mat-icon>
+        <div matListItemTitle>员工管理</div>
+      </mat-list-item>
+      <mat-list-item routerLink="/cashier/center/member">
+        <mat-icon matListItemIcon>currency_exchange</mat-icon>
+        <div matListItemTitle>会员管理</div>
+      </mat-list-item>
+    </mat-list>
+  </div>
+  <div class="center-content">
+    <router-outlet></router-outlet>
+  </div>
+</div>

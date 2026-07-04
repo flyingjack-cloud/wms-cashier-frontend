@@ -1,0 +1,22 @@
+.wms-toast{ 
+    position: absolute;
+    top: 80px;
+    right: 20px;
+
+    border-radius: 8px;
+    border: 1px solid;
+    opacity: 0.8;
+    
+    padding: 10px;
+
+    display: flex;
+    align-items: center;
+
+    z-index: 1000;
+
+}
+
+
+.wms-toast > span {
+    margin-left: 10px;
+}

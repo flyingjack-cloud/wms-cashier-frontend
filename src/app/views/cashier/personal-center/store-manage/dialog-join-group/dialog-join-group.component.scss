@@ -1,0 +1,29 @@
+div {
+  padding-left: 1rem;
+  padding-right: 1rem;
+  overflow: hidden;
+
+  #close-button {
+    position: absolute;
+    top: 0.2rem;
+    right: 0.2rem;
+    z-index: 99;
+  }
+
+  .field {
+    width: 100%;
+    display: flex;
+    align-items: center;
+
+    margin-bottom: 3rem;
+
+    button {
+      margin-bottom: 1rem;
+      margin-left: 0.5rem;
+    }
+  }
+
+  mat-progress-bar {
+    margin-top: -1.5rem;
+  }
+}

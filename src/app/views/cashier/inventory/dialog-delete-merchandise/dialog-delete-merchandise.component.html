@@ -1,0 +1,15 @@
+<h2 mat-dialog-title>确定删除以下商品？</h2>
+<mat-dialog-content>
+  <h4>相关订单也会删除，请谨慎处理</h4>
+  <p>型号: {{data.category.name}}</p>
+  <p>型号: {{data.imei}}</p>
+  <p>进价: {{data.cost}} 售价: {{data.price}}</p>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button mat-dialog-close [disabled]="loading" >取消</button>
+  <button mat-raised-button color="accent" (click)="delete()" [disabled]="loading" >确认删除</button>
+</mat-dialog-actions>
+
+@if (loading){
+  <mat-progress-bar mode="query"></mat-progress-bar>
+}

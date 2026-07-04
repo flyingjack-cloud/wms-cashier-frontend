@@ -1,0 +1,26 @@
+@use "../../../../screen" as *;
+@use "../center" as *;
+
+
+section {
+  margin-left: 1rem;
+  height: 35%;
+
+  h4 {
+    color: #434343;
+    letter-spacing: 0.5rem;
+  }
+
+  .scroll-table {
+    overflow: scroll;
+
+    @include web{
+      max-height: 200px;
+    }
+
+    @include min-web{
+      max-height: 100px;
+    }
+  }
+
+}

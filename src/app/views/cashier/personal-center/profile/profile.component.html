@@ -1,0 +1,42 @@
+<h2>个人信息</h2>
+<mat-divider></mat-divider>
+<div class="profile-field">
+  <div class="header">
+    <h3>姓名</h3>
+    <p>显示的名字</p>
+  </div>
+  <div class="content">
+    <mat-form-field appearance="fill">
+      <input #nickname matInput placeholder="未设置" type="text" [disabled]="!showEditNickname" value="{{ (profile | async)?.nickname}}">
+    </mat-form-field>
+    @if (showEditNickname) {
+      <button mat-button color="primary" (click)="editNickname(nickname.value)">确认</button>
+    } @else {
+      <button mat-button color="accent" (click)="showEditNickname = true">修改</button>
+    }
+  </div>
+</div>
+
+<!-- <div class="profile-field">
+  <div class="header">
+    <h3>手机</h3>
+    <p>手机号</p>
+  </div>
+  <div class="content">
+    <mat-form-field appearance="fill">
+      <input matInput placeholder="未设置" type="text" disabled value="{{ (profile | async)?.phoneNumber}}">
+    </mat-form-field>
+  </div>
+</div> -->
+
+<!-- <div class="profile-field">
+  <div class="header">
+    <h3>邮箱</h3>
+    <p>邮箱账号</p>
+  </div>
+  <div class="content">
+    <mat-form-field appearance="fill">
+      <input matInput placeholder="未设置" type="text" disabled value="{{ (profile | async)?.email}}">
+    </mat-form-field>
+  </div>
+</div> -->

@@ -1,0 +1,16 @@
+<h2 mat-dialog-title>确定退货？</h2>
+
+<mat-dialog-content>
+  <h4>订单号：{{ data.id }}</h4>
+  该操作无法撤回，请确认
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button mat-button [disabled]="loading"  mat-dialog-close>取消</button>
+  <button mat-raised-button [disabled]="loading"  color="warn" (click)="submit()" >确认</button>
+  @if (loading) {
+    <mat-progress-bar color="accent" mode="query"></mat-progress-bar>
+  }
+</mat-dialog-actions>
+
+
+

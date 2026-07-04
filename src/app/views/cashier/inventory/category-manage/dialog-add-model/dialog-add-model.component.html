@@ -1,0 +1,21 @@
+<form>
+  <h4>在{{data.name}}下添加型号（二级分类）</h4>
+  <mat-form-field>
+    <mat-label>型号名称</mat-label>
+    <input matInput [formControl]="modelName" />
+  </mat-form-field>
+  @if (modelName.invalid && (modelName.dirty || modelName.touched)) {
+    <mat-error>名称不能为空</mat-error>
+  }
+</form>
+
+<mat-dialog-actions>
+  <button mat-raised-button mat-dialog-close>关闭</button>
+  <button mat-raised-button [disabled]="modelName.invalid || loading" (click)="submit()">提交</button>
+</mat-dialog-actions>
+
+@if (loading){
+  <mat-progress-bar mode="indeterminate"></mat-progress-bar>
+}
+
+

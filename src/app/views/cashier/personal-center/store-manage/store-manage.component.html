@@ -1,0 +1,89 @@
+<h2>商铺信息</h2>
+<mat-divider></mat-divider>
+@if ( (group$| async) == null || (group$| async)!.id <= 0) {
+    @if (request$ | async; as data;) {
+      <div id="request-show">
+        <h4>您已经提交申请加入：</h4>
+        <div>
+          <mat-icon>store</mat-icon>
+          <span>{{data.storeName}} ({{ data.id }})</span>
+          <button mat-raised-button color="warn" (click)="openDialogDeleteRequest()">取消申请</button>
+          </div>
+        <p> 申请还未通过，赶紧联系管理员通过吧！</p>
+      </div>
+    } @else {
+      <div class="blank-store">
+        <h4>您还未加入任何店铺, 需要加入店铺才能有权限，立刻：</h4>
+        <button mat-raised-button (click)="openDialogCreate()" color="primary" >新建商铺</button>
+        <button mat-raised-button color="primary" (click)="openDialogJoin()">加入商铺</button>
+      </div>
+    }
+} @else {
+  <div class="profile-field">
+    <div class="header">
+      <h3>商铺编号</h3>
+      <p>申请加入时使用</p>
+    </div>
+    <div class="content">
+      <mat-form-field appearance="fill">
+        <input matInput placeholder="未设置" type="text" disabled="true" value="{{ (group$ | async)?.id}}">
+      </mat-form-field>
+    </div>
+  </div>
+
+  <div class="profile-field">
+    <div class="header">
+      <h3>商铺名称</h3>
+      <p>商铺显示全名</p>
+    </div>
+    <div class="content">
+      <mat-form-field appearance="fill">
+        <input #storeName matInput placeholder="未设置" type="text" [disabled]="!showStoreNameEdit" value="{{ (group$ | async)?.storeName}}">
+      </mat-form-field>
+      @if (showStoreNameEdit) {
+        <button mat-button color="primary" (click)="editStoreName(storeName.value)">确认</button>
+      } @else {
+        <button mat-button color="accent" (click)="showStoreNameEdit = true">修改</button>
+      }
+    </div>
+  </div>
+
+  <div class="profile-field">
+    <div class="header">
+      <h3>商铺地址</h3>
+      <p>商铺完整地址</p>
+    </div>
+
+    <div class="content">
+      <mat-form-field appearance="fill">
+        <input #address matInput placeholder="未设置" type="text" [disabled]="!showAddressEdit" value="{{ (group$ | async)?.address}}">
+      </mat-form-field>
+      @if (showAddressEdit) {
+        <button mat-button color="primary" (click)="editAddress(address.value)">确认</button>
+      } @else {
+        <button mat-button color="accent" (click)="showAddressEdit = true">修改</button>
+      }
+    </div>
+  </div>
+
+  <div class="profile-field">
+    <div class="header">
+      <h3>联系电话</h3>
+      <p>商铺联系电话</p>
+    </div>
+
+    <div class="content">
+      <mat-form-field appearance="fill">
+        <input #contact matInput placeholder="未设置" type="text" [disabled]="!showContactEdit" value="{{ (group$ | async)?.contact}}">
+      </mat-form-field>
+      @if (showContactEdit) {
+        <button mat-button color="primary" (click)="editContact(contact.value)">确认</button>
+      } @else {
+        <button mat-button color="accent" (click)="showContactEdit = true">修改</button>
+      }
+    </div>
+  </div>
+
+}
+
+

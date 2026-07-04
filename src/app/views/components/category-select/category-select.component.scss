@@ -1,0 +1,19 @@
+.category-box {
+    display: grid;
+    grid-template-columns: 5% 95%;
+    justify-items: start;
+    align-items: center;
+    row-gap: 20px;
+    padding: 10px;
+
+    border: 1px solid #ededed;
+    font-size: 15px;
+
+    overflow-y: scroll;
+
+    color: rgb(77, 77, 77);
+}
+
+.category-box > span {
+    font-weight: 400;
+}

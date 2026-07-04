@@ -1,0 +1,27 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <mat-form-field>
+    <label>商店名</label>
+    <input matInput type="text" formControlName="storeName">
+    <mat-hint>最大长度30字</mat-hint>
+    @if(form.controls.storeName.invalid){
+      <mat-error>长度必须为3-30字</mat-error>
+    }
+  </mat-form-field>
+
+  <mat-form-field>
+    <label>地址</label>
+    <input matInput  type="text" formControlName="address">
+    <mat-hint>最大长度200字</mat-hint>
+  </mat-form-field>
+
+  <mat-form-field>
+    <label>联系电话</label>
+    <input matInput type="text" formControlName="contact">
+    <mat-hint>最大长度30字</mat-hint>
+  </mat-form-field>
+
+  <input hidden="hidden" formControlName="createTime">
+
+  <button mat-raised-button type="button" mat-dialog-close>取消</button>
+  <button mat-raised-button color="primary" [disabled]="form.invalid" type="submit">提交</button>
+</form>

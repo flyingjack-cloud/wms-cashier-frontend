@@ -1,0 +1,7 @@
+<div *ngIf="toast$ | async as toast" [style.background-color]="bg_color_map[toast.level]" [style.border-color]="main_color_map[toast.level]" class="wms-toast">
+    <mat-icon [style.color]="main_color_map[toast.level]">{{ icon_map[toast.level] }}</mat-icon>
+    <span>{{ toast.message }}</span>
+    <button mat-icon-button (click)="clear()">
+        <mat-icon>close</mat-icon>
+    </button>
+</div>

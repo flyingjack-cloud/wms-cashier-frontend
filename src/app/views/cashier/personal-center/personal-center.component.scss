@@ -1,0 +1,141 @@
+@use "../../../screen" as *;
+
+@mixin children-block-center() {
+    margin: auto; /* 居中显示 */
+}
+
+@mixin fix-ratio-box($ratio){
+  width: 70vh * $ratio;
+  height: 70vh;
+  max-width: 980px * $ratio;
+  max-height: 980px;
+
+  overflow: hidden;
+  background-color: white;
+  border-radius: 50px;
+  box-shadow: 1px 2px 4px 0px rgba(0, 0, 0, 0.2);
+  margin-right: 20px;
+}
+
+#center-container {
+  min-height: 80vh;
+  display: flex;
+  flex-wrap: wrap;
+
+  @include web{
+    margin: 5rem {
+      bottom: 0;
+      right: 0;
+    };
+  }
+
+  @include min-web{
+    margin-left: 1rem;
+    margin-top: 2rem;
+
+  }
+
+  .center-header {
+    @include web {
+      @include fix-ratio-box(0.45);
+    }
+
+    @include min-web {
+      @include fix-ratio-box(0.4);
+    }
+
+    .center-avatar {
+      width: 100%;
+      height: 35%;
+      clip-path: circle(70% at 50% 10%);
+      background: linear-gradient(145.67deg, rgb(199,195,252) 15.461%,rgb(142, 197, 252) 83.011%);
+      margin-left: auto;
+      margin-right: auto;
+      text-align: center;
+      padding-top: 1rem;
+
+      .avatar {
+        @include children-block-center;
+
+        background-color: white;
+        border-radius: 999px;
+        margin: {top: 10%};
+        overflow: hidden;
+
+        @include web {
+          height: 100px;
+          width: 100px;
+        }
+
+        @include min-web {
+          height: 60px;
+          width: 60px;
+        }
+
+        img {
+          width: 100%;
+        }
+      }
+
+      .avatar-content {
+        display: flex;
+        justify-content: center;
+
+        p {
+          display: inline;
+          color: white;
+          font-weight: 300;
+          font-size: 1.2rem;
+
+          margin: 0 {
+            top: 10px;
+            left: 12px;
+          };
+        }
+
+        svg {
+          width: 16px;
+          height: 15px;
+        }
+      }
+    }
+
+    mat-list {
+      $list-color: #444444;
+      mat-list-item {
+        @include web {
+          height: 5rem;
+          padding-left: 70vh * 0.45 * 0.3;
+
+        }
+
+        @include min-web {
+          height: 4rem;
+          padding-left: 70vh * 0.45 * 0.2;
+        }
+
+        &:hover {
+          background-color: rgba(0,0,0, 0.05);
+          cursor: pointer;
+        }
+
+        mat-icon {
+          margin: 0 {
+            right: calc((70vh * 0.45 * 0.3) / 10);
+          };
+          color: $list-color;
+        }
+
+        div {
+          font-size: 1.2rem;
+          color: $list-color;
+          font-weight: bold;
+        }
+      }
+    }
+  }
+
+  .center-content {
+    @include fix-ratio-box(1);
+  }
+}

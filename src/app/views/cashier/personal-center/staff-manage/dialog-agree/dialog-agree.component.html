@@ -1,0 +1,14 @@
+<h2 mat-dialog-title>同意加入</h2>
+<mat-dialog-content>
+  确定同意用户{{data.user.nickname}}({{data.user.phoneNumber}})加入?
+  <form [formGroup]="permissions">
+    <h4>选择用户的权限</h4>
+    <p><mat-checkbox formControlName="shopping">收银功能</mat-checkbox></p>
+    <p><mat-checkbox formControlName="inventory">库存管理</mat-checkbox></p>
+    <p><mat-checkbox formControlName="statistics">数据(订单)查看</mat-checkbox></p>
+  </form>
+</mat-dialog-content>
+<mat-dialog-actions>
+  <button preventEnter [disabled]="loading" type="button" mat-button mat-dialog-close>否</button>
+  <button preventEnter [disabled]="loading" type="button" mat-raised-button color="primary" (click)="agree()">是</button>
+</mat-dialog-actions>

@@ -1,0 +1,102 @@
+<mat-tab-group (selectedTabChange)="guide($event)">
+  <mat-tab label="库存管理">
+    <section>
+      <app-category-select (select)="select($event)"></app-category-select>
+      <div class="statistics">
+        <div class="statistics-card">
+          <h3 class="statistics-card-title">
+            <span class="statistics-card-label"><mat-icon color="accent">tag</mat-icon> 当前数量</span>
+          </h3>
+          <h1>{{ dataSource.filteredData.length }} <span>台</span></h1>
+        </div>
+        <div class="statistics-card">
+          <h3 class="statistics-card-title">
+            <span class="statistics-card-label"><mat-icon color="accent">credit_card</mat-icon> 总成本</span>
+            <button class="statistics-card-action" mat-icon-button matSuffix (click)="hideCost = !hideCost" [attr.aria-label]="'Hide cost'" [attr.aria-pressed]="hideCost">
+              <mat-icon>{{hideCost ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+          </h3>
+          <h1>@if(hideCost) {****} @else { {{ total('cost') }} }<span>元</span></h1>
+        </div>
+        <div class="statistics-card">
+          <h3 class="statistics-card-title">
+            <span class="statistics-card-label"><mat-icon color="accent">point_of_sale</mat-icon> 总售价</span>
+          </h3>
+          <h1>{{ total('price') }}<span>元</span></h1>
+        </div>
+      </div>
+
+      <mat-form-field class="filter">
+        <mat-label>筛选</mat-label>
+        <input matInput (keyup)="applyFilter($event)" placeholder="串号或者价格" #input>
+      </mat-form-field>
+
+      <table mat-table [dataSource]="dataSource">
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef> 序号 </th>
+          <td mat-cell *matCellDef="let item"> {{item.id}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="cate_name">
+          <th mat-header-cell *matHeaderCellDef> 型号 </th>
+          <td mat-cell *matCellDef="let item"> {{item.category.name}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="imei">
+          <th mat-header-cell *matHeaderCellDef> 串号 </th>
+          <td mat-cell *matCellDef="let item"> {{item.imei}} </td>
+        </ng-container>
+        <ng-container matColumnDef="cost">
+          <th mat-header-cell *matHeaderCellDef>
+            <button mat-icon-button matSuffix (click)="hideCost = !hideCost" [attr.aria-label]="'Hide cost'" [attr.aria-pressed]="hideCost">
+              <mat-icon>{{hideCost ? 'visibility_off' : 'visibility'}}</mat-icon>
+            </button>
+            成本价格
+          </th>
+          <td mat-cell *matCellDef="let item">
+            <span> ￥
+              @if(hideCost) {
+                ****
+              } @else {
+                {{item.cost }}
+              }
+            </span>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="price">
+          <th mat-header-cell *matHeaderCellDef> 售价 </th>
+          <td mat-cell *matCellDef="let item">  ￥ {{item.price}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="create_date">
+          <th mat-header-cell *matHeaderCellDef> 录入时间 </th>
+          <td mat-cell *matCellDef="let item"> {{item.createTime | localDate:"yyyy-MM-dd HH:mm:ss"}} </td>
+        </ng-container>
+
+        <ng-container matColumnDef="edit">
+          <th mat-header-cell *matHeaderCellDef> 修改 </th>
+          <td mat-cell *matCellDef="let item">
+            <button mat-icon-button (click)="openEditDialog(item)"><mat-icon color="accent">edit</mat-icon></button>
+          </td>
+        </ng-container>
+
+        <ng-container matColumnDef="delete">
+          <th mat-header-cell *matHeaderCellDef> 删除 </th>
+          <td mat-cell *matCellDef="let item">
+            <button mat-icon-button (click)="openDeleteDialog(item)"><mat-icon color="accent">delete</mat-icon></button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+      </table>
+
+      <mat-paginator [length]="count" [pageSizeOptions]="[10, 20, 50]" showFirstLastButtons></mat-paginator>
+      <button id="excelBtn" mat-raised-button type="button" (click)="saveToExcel()">导出为表格</button>
+      <button mat-raised-button type="button" (click)="account()">盘库统计</button>
+    </section>
+  </mat-tab>
+  <mat-tab label="新增商品"> <app-create-merchandise></app-create-merchandise> </mat-tab>
+  <mat-tab label="分类管理"> <app-category-manage></app-category-manage> </mat-tab>
+</mat-tab-group>
