@@ -100,7 +100,7 @@ apiVersion: cert-manager.io/v1
 kind: Certificate
 metadata:
   name: wms-flyingjack-top-tls
-  namespace: flyingjack-prod
+  namespace: istio-system
 spec:
   secretName: wms-flyingjack-top-tls
   issuerRef:
