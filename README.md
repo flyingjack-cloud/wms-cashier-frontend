@@ -38,7 +38,7 @@ This will compile your project and store the build artifacts in the `dist/` dire
 
 ## Deployment
 
-`wms-frontend` is deployed by GitOps and served at `https://wms.flyingjack.top`.
+`wms-cashier-frontend` is deployed by GitOps and served at `https://wms.flyingjack.top`.
 
 ### Repository And Branches
 
@@ -51,14 +51,14 @@ This will compile your project and store the build artifacts in the `dist/` dire
 
 ### Resources
 
-- Kustomize overlay: `frontend/wms-frontend/overlays/prod`
+- Kustomize overlay: `frontend/wms-cashier-frontend/overlays/prod`
 - Namespace: `flyingjack-prod`
-- Deployment: `wms-frontend-v1`
-- Service: `wms-frontend`
-- Gateway: `wms-frontend-gateway`
-- VirtualService: `wms-frontend-routes`
+- Deployment: `wms-cashier-frontend-v1`
+- Service: `wms-cashier-frontend`
+- Gateway: `wms-cashier-frontend-gateway`
+- VirtualService: `wms-cashier-frontend-routes`
 - TLS secret: `wms-flyingjack-top-tls`
-- Image: `100.107.74.15:5000/wms-frontend:<tag>`
+- Image: `100.107.74.15:5000/wms-cashier-frontend:<tag>`
 
 ### Prerequisites
 
@@ -138,7 +138,7 @@ Common causes are DNS not pointing to the ingress IP, port 80 not being publicly
 Run this from the `k8s-gitops` repository before committing:
 
 ```bash
-kubectl kustomize frontend/wms-frontend/overlays/prod
+kubectl kustomize frontend/wms-cashier-frontend/overlays/prod
 ```
 
 ### 5. Create ArgoCD Application
@@ -150,14 +150,14 @@ kubectl apply -f - <<EOF
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: wms-frontend-prod
+  name: wms-cashier-frontend-prod
   namespace: argocd
 spec:
   project: default
   source:
     repoURL: https://github.com/flyingjack-cloud/k8s-gitops
     targetRevision: main
-    path: frontend/wms-frontend/overlays/prod
+    path: frontend/wms-cashier-frontend/overlays/prod
   destination:
     server: https://kubernetes.default.svc
     namespace: flyingjack-prod
@@ -171,14 +171,14 @@ EOF
 Check sync status:
 
 ```bash
-argocd app get wms-frontend-prod
-argocd app sync wms-frontend-prod
+argocd app get wms-cashier-frontend-prod
+argocd app sync wms-cashier-frontend-prod
 ```
 
 Without the ArgoCD CLI:
 
 ```bash
-kubectl get application wms-frontend-prod -n argocd
+kubectl get application wms-cashier-frontend-prod -n argocd
 ```
 
 ### 6. Verify Deployment
@@ -186,12 +186,12 @@ kubectl get application wms-frontend-prod -n argocd
 Check rollout, networking resources, and HTTPS:
 
 ```bash
-kubectl rollout status deployment/wms-frontend-v1 -n flyingjack-prod
-kubectl get pod -n flyingjack-prod -l app=wms-frontend
-kubectl get svc wms-frontend -n flyingjack-prod
-kubectl get gateway wms-frontend-gateway -n flyingjack-prod
-kubectl get virtualservice wms-frontend-routes -n flyingjack-prod
-kubectl get destinationrule wms-frontend-rule -n flyingjack-prod
+kubectl rollout status deployment/wms-cashier-frontend-v1 -n flyingjack-prod
+kubectl get pod -n flyingjack-prod -l app=wms-cashier-frontend
+kubectl get svc wms-cashier-frontend -n flyingjack-prod
+kubectl get gateway wms-cashier-frontend-gateway -n flyingjack-prod
+kubectl get virtualservice wms-cashier-frontend-routes -n flyingjack-prod
+kubectl get destinationrule wms-cashier-frontend-rule -n flyingjack-prod
 curl -I https://wms.flyingjack.top
 ```
 
@@ -200,20 +200,20 @@ curl -I https://wms.flyingjack.top
 GitHub Actions builds and pushes:
 
 ```text
-${REGISTRY_URL}/wms-frontend:prod-${SHORT_SHA}
+${REGISTRY_URL}/wms-cashier-frontend:prod-${SHORT_SHA}
 ```
 
 Then it updates the GitOps image patch:
 
 ```text
-frontend/wms-frontend/overlays/prod/wms-frontend-patch.yaml
+frontend/wms-cashier-frontend/overlays/prod/wms-cashier-frontend-patch.yaml
 ```
 
 ArgoCD applies the new image tag after the GitOps repository receives that commit.
 
 ### 8. Rollback
 
-To roll back, change the image tag in `frontend/wms-frontend/overlays/prod/wms-frontend-patch.yaml` to the previous working version, commit it to the GitOps repository, and wait for ArgoCD to sync.
+To roll back, change the image tag in `frontend/wms-cashier-frontend/overlays/prod/wms-cashier-frontend-patch.yaml` to the previous working version, commit it to the GitOps repository, and wait for ArgoCD to sync.
 
 Do not edit the live Deployment directly; ArgoCD will overwrite it.
 
