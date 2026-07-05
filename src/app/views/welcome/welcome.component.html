@@ -6,9 +6,13 @@
       <mat-icon>bolt</mat-icon>
       <span>销售宝</span>
     </a>
-    <button mat-flat-button type="button" class="header-login" (click)="login()">
-      <mat-icon>login</mat-icon>
-      登录使用系统
+    <button mat-flat-button type="button" class="header-login" (click)="login()" [disabled]="loggingIn()">
+      @if (loggingIn()) {
+        <mat-spinner diameter="18"></mat-spinner>
+      } @else {
+        <mat-icon>login</mat-icon>
+      }
+      {{ loggingIn() ? '跳转中…' : '登录使用系统' }}
     </button>
   </header>
 
@@ -23,9 +27,13 @@
         登录后即可使用收银、库存管理、销售统计和店铺协作功能。
       </p>
       <div class="hero-actions">
-        <button mat-flat-button type="button" class="primary-action" (click)="login()">
-          <mat-icon>login</mat-icon>
-          登录使用系统
+        <button mat-flat-button type="button" class="primary-action" (click)="login()" [disabled]="loggingIn()">
+          @if (loggingIn()) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            <mat-icon>login</mat-icon>
+          }
+          {{ loggingIn() ? '跳转中…' : '登录使用系统' }}
         </button>
         <a mat-button routerLink="/welcome" class="secondary-action">
           <mat-icon>shield</mat-icon>

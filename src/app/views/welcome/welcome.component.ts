@@ -1,13 +1,14 @@
-import {Component} from '@angular/core';
+import {Component, signal} from '@angular/core';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 import {MatButtonModule} from '@angular/material/button';
 import {MatIconModule} from '@angular/material/icon';
+import {MatProgressSpinnerModule} from '@angular/material/progress-spinner';
 import {AuthService} from '../../services/auth.service';
 
 @Component({
   selector: 'app-welcome',
   standalone: true,
-  imports: [MatButtonModule, MatIconModule, RouterLink],
+  imports: [MatButtonModule, MatIconModule, MatProgressSpinnerModule, RouterLink],
   templateUrl: './welcome.component.html',
   styleUrl: './welcome.component.scss',
 })
@@ -18,12 +19,18 @@ export class WelcomeComponent {
     {icon: 'monitoring', title: '数据统计', text: '查看销售记录、退货和汇总数据。'},
   ];
 
+  readonly loggingIn = signal(false);
+
   constructor(
     private authService: AuthService,
     private route: ActivatedRoute,
   ) {}
 
   login(): void {
-    this.authService.initiateLogin(this.route.snapshot.queryParamMap.get('returnUrl'));
+    if (this.loggingIn()) return;
+    this.loggingIn.set(true);
+    this.authService
+      .initiateLogin(this.route.snapshot.queryParamMap.get('returnUrl'))
+      .catch(() => this.loggingIn.set(false));
   }
 }
