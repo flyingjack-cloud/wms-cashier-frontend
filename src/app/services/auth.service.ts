@@ -26,12 +26,12 @@ export class AuthService {
     return this.isAuthenticated() ? this.oauthService.getAccessToken() : null;
   }
 
-  initiateLogin(returnUrl?: string | null): void {
-    if (this.isOAuthCallbackUrl()) return;
+  initiateLogin(returnUrl?: string | null): Promise<void> {
+    if (this.isOAuthCallbackUrl()) return Promise.resolve();
     if (returnUrl && returnUrl !== '/welcome') {
       sessionStorage.setItem(this.postLoginRedirectKey, returnUrl);
     }
-    void this.initialize().then(() => this.oauthService.initCodeFlow());
+    return this.initialize().then(() => this.oauthService.initCodeFlow());
   }
 
   consumePostLoginRedirectUrl(): string {
