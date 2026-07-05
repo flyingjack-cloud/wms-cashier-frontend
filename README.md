@@ -114,21 +114,21 @@ EOF
 Wait until the certificate is ready:
 
 ```bash
-kubectl get certificate wms-flyingjack-top-tls -n flyingjack-prod -w
+kubectl get certificate wms-flyingjack-top-tls -n istio-system -w
 ```
 
 Confirm the secret was created:
 
 ```bash
-kubectl get secret wms-flyingjack-top-tls -n flyingjack-prod
+kubectl get secret wms-flyingjack-top-tls -n istio-system
 ```
 
 If issuance is stuck, inspect cert-manager resources:
 
 ```bash
-kubectl describe certificate wms-flyingjack-top-tls -n flyingjack-prod
-kubectl get order,challenge -n flyingjack-prod
-kubectl describe challenge -n flyingjack-prod
+kubectl describe certificate wms-flyingjack-top-tls -n istio-system
+kubectl get order,challenge -n istio-system
+kubectl describe challenge -n istio-system
 ```
 
 Common causes are DNS not pointing to the ingress IP, port 80 not being publicly reachable, a missing or unhealthy `ClusterIssuer/letsencrypt-prod`, or routing that blocks ACME HTTP-01 challenges.
