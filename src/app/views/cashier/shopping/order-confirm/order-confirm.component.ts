@@ -107,8 +107,8 @@ export class OrderConfirmComponent implements OnInit{
     ).subscribe({
       next: () => {
         this.toast.push("提交成功", "success");
-        this.dialogRef.close({isSuccess: true});
         this.receipt.print();
+        this.dialogRef.close({isSuccess: true});
       }
     });
   }

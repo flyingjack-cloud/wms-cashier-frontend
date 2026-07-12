@@ -1,6 +1,5 @@
-import {Component, Input, OnInit} from '@angular/core';
-import {DecimalPipe} from "@angular/common";
-import {NgxPrintService, PrintOptions} from "ngx-print";
+import {Component, Inject, Input, OnInit, ChangeDetectorRef} from '@angular/core';
+import {DecimalPipe, DOCUMENT} from "@angular/common";
 import {ChineseCapitalPipe} from "../../../pipes/ChineseCapital";
 import {UserService} from "../../../services/user.service";
 import {GroupService} from "../../../services/group.service";
@@ -50,7 +49,11 @@ export class ReceiptPrintComponent implements OnInit{
   models: String[] = [];
 
   today = new Date();
-  constructor(private printService: NgxPrintService, public userService: UserService, public groupService: GroupService, public categorService: CategoryService) {
+  constructor(@Inject(DOCUMENT) private document: Document,
+              private changeDetectorRef: ChangeDetectorRef,
+              public userService: UserService,
+              public groupService: GroupService,
+              public categorService: CategoryService) {
   }
 
   total() {
@@ -60,12 +63,79 @@ export class ReceiptPrintComponent implements OnInit{
   }
 
   print(){
-    this.printService.styleSheetFile = "assets/css/receipt.css";
-    const customPrintOptions: PrintOptions = new PrintOptions({
-      printSectionId: 'print-section'
-    })
+    this.changeDetectorRef.detectChanges();
 
-    this.printService.print(customPrintOptions)
+    const printSection = this.document.getElementById('print-section');
+    if (!printSection) {
+      console.error('Print section with id print-section not found.');
+      return;
+    }
+
+    const printFrame = this.document.createElement('iframe');
+    printFrame.style.position = 'fixed';
+    printFrame.style.left = '-9999px';
+    printFrame.style.top = '0';
+    printFrame.style.width = '1px';
+    printFrame.style.height = '1px';
+    printFrame.style.border = '0';
+    this.document.body.appendChild(printFrame);
+
+    const frameDocument = printFrame.contentDocument ?? printFrame.contentWindow?.document;
+    if (!frameDocument || !printFrame.contentWindow) {
+      printFrame.remove();
+      console.error('Could not create print frame.');
+      return;
+    }
+
+    let printed = false;
+    const print = () => {
+      if (printed) {
+        return;
+      }
+      printed = true;
+      printFrame.contentWindow?.focus();
+      printFrame.contentWindow?.print();
+      setTimeout(() => printFrame.remove(), 1000);
+    };
+
+    frameDocument.open();
+    frameDocument.write(`
+      <!doctype html>
+      <html>
+        <head>
+          <title></title>
+          <link rel="stylesheet" type="text/css" href="assets/css/receipt.css">
+          <style>
+            table,
+            table tr th,
+            table tr td {
+              font-weight: 100;
+              font-size: 10pt;
+              text-align: center;
+              border-collapse: collapse;
+              border: 0.2mm solid #000;
+              background-color: #FFF;
+            }
+          </style>
+        </head>
+        <body>${printSection.innerHTML}</body>
+      </html>
+    `);
+    frameDocument.close();
+
+    const stylesheet = frameDocument.querySelector('link[rel="stylesheet"]') as HTMLLinkElement | null;
+    const fallbackTimer = setTimeout(print, 500);
+
+    if (stylesheet) {
+      stylesheet.onload = () => {
+        clearTimeout(fallbackTimer);
+        print();
+      };
+      stylesheet.onerror = () => {
+        clearTimeout(fallbackTimer);
+        print();
+      };
+    }
   }
 
   ngOnInit(): void {
