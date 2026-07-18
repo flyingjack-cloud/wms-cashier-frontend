@@ -1,0 +1,58 @@
+<h2 mat-dialog-title>订单附加信息</h2>
+<mat-dialog-content>
+  <p class="order-summary">订单 {{ order.id }} · {{ order.merchandise.category.name }} · {{ order.merchandise.imei }}</p>
+  @if (loading) {
+    <mat-progress-bar mode="query"></mat-progress-bar>
+  } @else if (!templates.length) {
+    <p class="empty">当前店铺没有启用的附加信息模板，请先到票据设置中创建或启用模板。</p>
+  } @else {
+    @for (template of templates; track template.code) {
+      <section class="extra-card">
+        <header>
+          <div><strong>{{ template.name }}</strong><small>{{ template.code }} · v{{ template.version }}</small></div>
+          @if (isExisting(template.code)) {
+            <span class="status">已录入，可直接修改</span>
+          } @else {
+            <mat-slide-toggle [(ngModel)]="selectedTemplates[template.code]">添加此信息</mat-slide-toggle>
+          }
+        </header>
+        @if (isExisting(template.code) || selectedTemplates[template.code]) {
+          <div class="field-grid">
+            @for (field of template.schema.fields; track field.key) {
+              @switch (field.type) {
+                @case ('textarea') {
+                  <mat-form-field><mat-label>{{ fieldLabel(field) }}</mat-label>
+                    <textarea matInput [(ngModel)]="payloads[template.code][field.key]" [required]="!!field.required"></textarea>
+                  </mat-form-field>
+                }
+                @case ('select') {
+                  <mat-form-field><mat-label>{{ fieldLabel(field) }}</mat-label>
+                    <mat-select [(ngModel)]="payloads[template.code][field.key]" [required]="!!field.required">
+                      @for (option of field.options || []; track option) { <mat-option [value]="option">{{ option }}</mat-option> }
+                    </mat-select>
+                  </mat-form-field>
+                }
+                @case ('boolean') {
+                  <mat-checkbox [(ngModel)]="payloads[template.code][field.key]">{{ fieldLabel(field) }}</mat-checkbox>
+                }
+                @default {
+                  <mat-form-field><mat-label>{{ fieldLabel(field) }}</mat-label>
+                    <input matInput
+                      [type]="field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : field.type === 'datetime' ? 'datetime-local' : 'text'"
+                      [(ngModel)]="payloads[template.code][field.key]" [required]="!!field.required">
+                  </mat-form-field>
+                }
+              }
+            }
+          </div>
+        }
+      </section>
+    }
+  }
+</mat-dialog-content>
+<mat-dialog-actions align="end">
+  <button mat-button type="button" (click)="close()">取消</button>
+  <button mat-raised-button color="primary" type="button" (click)="save()" [disabled]="loading || saving || !templates.length">
+    {{ saving ? '保存中…' : '保存信息' }}
+  </button>
+</mat-dialog-actions>

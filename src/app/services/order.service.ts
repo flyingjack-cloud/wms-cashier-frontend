@@ -65,7 +65,7 @@ export class OrderService {
       returned: order.returned,
     }));
 
-    return this.http.post("order/batch", body);
+    return this.http.post<RESTfulResponse<number[]>>("order/batch", body).pipe(map(res => res.data));
   }
 
   getOrdersByDateRange(start: Date, end: Date, page: number = 0, limit: number = 500) {

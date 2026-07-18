@@ -1,0 +1,188 @@
+<div class="settings-page">
+  <h2>票据与附加信息设置</h2>
+  @if (!loading && canInstallSubsidyPreset()) {
+    <section class="preset-empty-state">
+      <mat-icon>auto_awesome</mat-icon>
+      <div>
+        <h3>初始化国补票据</h3>
+        <p>一键补齐“国补”附加信息模板和 A4、58mm、80mm 销售单布局；已有模板会保留，不会被覆盖。</p>
+      </div>
+      <button mat-raised-button color="primary" (click)="installSubsidyPreset()">一键补齐默认票据</button>
+    </section>
+  }
+  <mat-tab-group>
+    <mat-tab label="附加信息">
+      <div class="toolbar"><button mat-raised-button color="primary" (click)="newExtra()"><mat-icon>add</mat-icon>新建模板</button></div>
+      <div class="template-list">
+        @for (template of extraTemplates; track template.code) {
+          <div class="template-card">
+            <div><strong>{{ template.name }}</strong><small>{{ template.code }} · v{{ template.version }}</small></div>
+            <span>{{ template.schema.fields.length }} 个字段</span>
+            <button mat-button (click)="editExtra(template)">编辑</button>
+            <mat-slide-toggle [checked]="template.enabled" (change)="toggleExtra(template)">{{ template.enabled ? '启用' : '停用' }}</mat-slide-toggle>
+          </div>
+        }
+      </div>
+
+      @if (editingExtra) {
+        <div class="editor-panel">
+          <h3>{{ editingExistingCode ? '编辑' : '新建' }}附加信息模板</h3>
+          <div class="form-grid">
+            <mat-form-field><mat-label>模板名称</mat-label><input matInput [(ngModel)]="editingExtra.name"></mat-form-field>
+            <mat-form-field><mat-label>模板编码</mat-label><input matInput [(ngModel)]="editingExtra.code" [disabled]="!!editingExistingCode"></mat-form-field>
+          </div>
+          @for (field of editingExtra.schema.fields; track $index; let fieldIndex = $index) {
+            <div class="field-row">
+              <mat-form-field><mat-label>字段名称</mat-label><input matInput [(ngModel)]="field.label"></mat-form-field>
+              <mat-form-field><mat-label>字段 key</mat-label><input matInput [(ngModel)]="field.key"></mat-form-field>
+              <mat-form-field><mat-label>类型</mat-label><mat-select [(ngModel)]="field.type">
+                @for (type of fieldTypes; track type.value) { <mat-option [value]="type.value">{{ type.label }}</mat-option> }
+              </mat-select></mat-form-field>
+              @if (field.type === 'select') {
+                <mat-form-field><mat-label>选项（逗号分隔）</mat-label><input matInput [ngModel]="optionsText(field)" (ngModelChange)="setOptions(field, $event)"></mat-form-field>
+              }
+              <mat-checkbox [(ngModel)]="field.required">必填</mat-checkbox>
+              <button mat-icon-button color="warn" (click)="removeExtraField(fieldIndex)"><mat-icon>delete</mat-icon></button>
+            </div>
+          }
+          <div class="actions">
+            <button mat-button (click)="addExtraField()"><mat-icon>add</mat-icon>添加字段</button>
+            <span class="spacer"></span>
+            <button mat-button (click)="editingExtra = null">取消</button>
+            <button mat-raised-button color="primary" (click)="saveExtra()">保存模板</button>
+          </div>
+        </div>
+      }
+    </mat-tab>
+
+    <mat-tab label="打印排版">
+      <div class="toolbar wrap">
+        <mat-form-field><mat-label>打印纸张</mat-label><mat-select [ngModel]="printerType" (ngModelChange)="selectPrinter($event)">
+          @for (type of printerTypes; track type.value) { <mat-option [value]="type.value">{{ type.label }}</mat-option> }
+        </mat-select></mat-form-field>
+        <mat-form-field><mat-label>方向</mat-label><mat-select [(ngModel)]="layout.page!.orientation">
+          <mat-option value="portrait">纵向</mat-option><mat-option value="landscape">横向</mat-option>
+        </mat-select></mat-form-field>
+        <mat-form-field><mat-label>页边距（mm）</mat-label><input matInput type="number" min="0" max="40" [(ngModel)]="layout.page!.margin"></mat-form-field>
+        <mat-form-field><mat-label>默认字号（px）</mat-label><input matInput type="number" min="8" max="48" [(ngModel)]="layout.page!.fontSize"></mat-form-field>
+        <button mat-button (click)="resetLayout()">恢复默认</button>
+        @if (currentReceipt()) { <button mat-button (click)="toggleReceipt()">{{ currentReceipt()?.enabled ? '停用' : '启用' }}</button> }
+        <button mat-raised-button color="primary" (click)="saveLayout()">保存排版</button>
+      </div>
+
+      <div class="layout-workspace">
+        <div class="layout-editor">
+          @for (row of layout.rows; track $index; let rowIndex = $index) {
+            <section class="layout-row">
+              <header>
+                <strong>第 {{ rowIndex + 1 }} 行</strong>
+                <mat-form-field><mat-label>高度</mat-label><input matInput [(ngModel)]="row.height" placeholder="自动或 40px"></mat-form-field>
+                <span class="spacer"></span>
+                <button mat-icon-button (click)="moveRow(rowIndex, -1)"><mat-icon>arrow_upward</mat-icon></button>
+                <button mat-icon-button (click)="moveRow(rowIndex, 1)"><mat-icon>arrow_downward</mat-icon></button>
+                <button mat-icon-button (click)="addColumn(rowIndex)"><mat-icon>add_box</mat-icon></button>
+                <button mat-icon-button color="warn" (click)="removeRow(rowIndex)"><mat-icon>delete</mat-icon></button>
+              </header>
+              <div class="column-grid">
+                @for (column of row.columns; track $index; let columnIndex = $index) {
+                  <div class="column-editor">
+                    <mat-form-field><mat-label>格子类型</mat-label><mat-select [(ngModel)]="column.type" (selectionChange)="changeColumnType(column)">
+                      @for (type of columnTypes; track type.value) { <mat-option [value]="type.value">{{ type.label }}</mat-option> }
+                    </mat-select></mat-form-field>
+                    <mat-form-field><mat-label>占用列数</mat-label><input matInput type="number" min="1" max="12" [(ngModel)]="column.span"></mat-form-field>
+                    @if (column.type === 'label') {
+                      <mat-form-field><mat-label>文字</mat-label><input matInput [(ngModel)]="column.field"></mat-form-field>
+                    }
+                    @if (column.type === 'text') {
+                      <mat-form-field><mat-label>绑定字段</mat-label><mat-select [(ngModel)]="column.field">
+                        @for (field of availableFields; track field.field) { <mat-option [value]="field.field">{{ field.label }}</mat-option> }
+                      </mat-select></mat-form-field>
+                    }
+                    <mat-form-field><mat-label>字号</mat-label><input matInput type="number" min="8" max="48" [(ngModel)]="column.style!.fontSize"></mat-form-field>
+                    <mat-form-field><mat-label>对齐</mat-label><mat-select [(ngModel)]="column.style!.align">
+                      <mat-option value="left">左</mat-option><mat-option value="center">居中</mat-option><mat-option value="right">右</mat-option>
+                    </mat-select></mat-form-field>
+                    <mat-checkbox [(ngModel)]="column.style!.bold">粗体</mat-checkbox>
+                    <button mat-icon-button color="warn" (click)="removeColumn(rowIndex, columnIndex)"><mat-icon>close</mat-icon></button>
+
+                    @if (column.type === 'table' && column.table) {
+                      <div class="table-editor">
+                        <mat-checkbox [(ngModel)]="column.table.showHeader">显示表头</mat-checkbox>
+                        @for (tableColumn of column.table.columns; track $index; let tableIndex = $index) {
+                          <div class="table-column">
+                            <mat-form-field><mat-label>列类型</mat-label><mat-select [(ngModel)]="tableColumn.type" (selectionChange)="changeTableColumnType(tableColumn)">
+                              <mat-option value="index">序号</mat-option><mat-option value="field">字段</mat-option>
+                            </mat-select></mat-form-field>
+                            <mat-form-field><mat-label>表头</mat-label><input matInput [(ngModel)]="tableColumn.label"></mat-form-field>
+                            @if (tableColumn.type === 'field') {
+                              <mat-form-field><mat-label>字段</mat-label><mat-select [(ngModel)]="tableColumn.field">
+                                @for (field of availableFields; track field.field) { <mat-option [value]="field.field">{{ field.label }}</mat-option> }
+                              </mat-select></mat-form-field>
+                            }
+                            <mat-form-field><mat-label>宽度权重</mat-label><input matInput type="number" min="1" [(ngModel)]="tableColumn.width"></mat-form-field>
+                            <button mat-icon-button color="warn" (click)="removeTableColumn(column, tableIndex)"><mat-icon>delete</mat-icon></button>
+                          </div>
+                        }
+                        <button mat-button (click)="addTableColumn(column)"><mat-icon>add</mat-icon>添加表格列</button>
+
+                        <div class="detail-rows-editor">
+                          <div class="detail-rows-title">
+                            <strong>商品副行</strong>
+                            <span>副行按 12 列 Grid 排版，序号会自动纵向合并</span>
+                            <button mat-stroked-button (click)="addTableDetailRow(column)"><mat-icon>add</mat-icon>添加副行</button>
+                          </div>
+                          @for (detailRow of column.table.detailRows || []; track $index; let detailRowIndex = $index) {
+                            <section class="detail-row-editor">
+                              <header>
+                                <strong>副行 {{ detailRowIndex + 1 }}</strong>
+                                <mat-form-field><mat-label>高度</mat-label><input matInput [(ngModel)]="detailRow.height" placeholder="自动"></mat-form-field>
+                                <span class="spacer"></span>
+                                <button mat-icon-button (click)="addTableDetailColumn(column, detailRowIndex)"><mat-icon>add_box</mat-icon></button>
+                                <button mat-icon-button color="warn" (click)="removeTableDetailRow(column, detailRowIndex)"><mat-icon>delete</mat-icon></button>
+                              </header>
+                              @for (detailColumn of detailRow.columns; track $index; let detailColumnIndex = $index) {
+                                <div class="detail-column-editor">
+                                  <mat-form-field><mat-label>类型</mat-label><mat-select [(ngModel)]="detailColumn.type" (selectionChange)="changeDetailColumnType(detailColumn)">
+                                    <mat-option value="label">固定文字</mat-option><mat-option value="text">绑定字段</mat-option>
+                                  </mat-select></mat-form-field>
+                                  <mat-form-field><mat-label>占用列数</mat-label><input matInput type="number" min="1" max="12" [(ngModel)]="detailColumn.span"></mat-form-field>
+                                  @if (detailColumn.type === 'label') {
+                                    <mat-form-field><mat-label>文字</mat-label><input matInput [(ngModel)]="detailColumn.field"></mat-form-field>
+                                  } @else {
+                                    <mat-form-field><mat-label>绑定字段</mat-label><mat-select [(ngModel)]="detailColumn.field">
+                                      @for (field of availableFields; track field.field) { <mat-option [value]="field.field">{{ field.label }}</mat-option> }
+                                    </mat-select></mat-form-field>
+                                    <mat-form-field><mat-label>格式</mat-label><mat-select [(ngModel)]="detailColumn.format">
+                                      <mat-option value="text">文本</mat-option><mat-option value="number">数字</mat-option>
+                                      <mat-option value="currency">金额</mat-option><mat-option value="date">日期</mat-option>
+                                      <mat-option value="datetime">日期时间</mat-option>
+                                    </mat-select></mat-form-field>
+                                  }
+                                  <mat-form-field><mat-label>字号</mat-label><input matInput type="number" min="8" max="48" [(ngModel)]="detailColumn.style!.fontSize"></mat-form-field>
+                                  <mat-checkbox [(ngModel)]="detailColumn.style!.bold">粗体</mat-checkbox>
+                                  <button mat-icon-button color="warn" (click)="removeTableDetailColumn(column, detailRowIndex, detailColumnIndex)"><mat-icon>close</mat-icon></button>
+                                </div>
+                              }
+                            </section>
+                          }
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+            </section>
+          }
+          <button mat-stroked-button (click)="addRow()"><mat-icon>add</mat-icon>添加一行</button>
+        </div>
+        <aside class="preview-panel">
+          <div class="preview-header">
+            <div><h3>打印效果预览</h3><small>{{ printerTypeLabel() }} · 测试数据不会保存</small></div>
+            <button mat-stroked-button (click)="refreshPreviewData()"><mat-icon>refresh</mat-icon>刷新测试数据</button>
+          </div>
+          <app-receipt [preview]="true" [printerType]="printerType" [layout]="layout" [data]="sampleOrders" [previewValues]="previewValues"></app-receipt>
+        </aside>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

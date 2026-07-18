@@ -15,6 +15,7 @@ import {
   MatDialog,
   MatDialogActions,
   MatDialogClose,
+  MatDialogContent,
   MatDialogRef,
   MatDialogTitle
 } from "@angular/material/dialog";
@@ -25,6 +26,9 @@ import {Merchandise} from "../../../models/merchandise";
 import {ReceiptPrintComponent} from "../../components/receipt/receipt-print.component";
 import {utils, writeFileXLSX} from "xlsx";
 import {LocalDatePipe} from "../../../pipes/local-date.pipe";
+import {MatSelectModule} from "@angular/material/select";
+import {PrinterType} from "../../../models/receipt";
+import {OrderExtraDialogComponent} from "./order-extra-dialog/order-extra-dialog.component";
 
 interface DateRangeForm {
   start: FormControl<Date>;
@@ -137,11 +141,20 @@ export class StatisticsComponent {
     if (order && order.merchandise){
       console.log(order)
       this.dialog.open(DialogPrintConfirmComponent,{
-        width: '160px',
-        height: '120px',
+        width: '380px',
+        maxWidth: '95vw',
         data: order
       })
     }
+  }
+
+  editExtra(order: Order) {
+    this.dialog.open(OrderExtraDialogComponent, {
+      width: '760px',
+      maxWidth: '95vw',
+      maxHeight: '90vh',
+      data: order,
+    });
   }
 
   saveToExcel() {
@@ -191,30 +204,53 @@ export class StatisticsComponent {
 
 @Component({
   template: `
-    <h1 mat-dialog-title>确定打印？</h1>
+    <h1 mat-dialog-title>补打票据</h1>
+    <mat-dialog-content>
+      <mat-form-field style="width: 100%">
+        <mat-label>打印纸张</mat-label>
+        <mat-select [(ngModel)]="printerType">
+          <mat-option value="A4">A4</mat-option>
+          <mat-option value="THERMAL_58">58mm 热敏纸</mat-option>
+          <mat-option value="THERMAL_80">80mm 热敏纸</mat-option>
+        </mat-select>
+      </mat-form-field>
+    </mat-dialog-content>
     <mat-dialog-actions>
         <button mat-button mat-dialog-close >取消</button>
-        <button mat-raised-button color="primary" mat-dialog-close (click)="confirm()">确认</button>
+        <button mat-raised-button color="primary" (click)="confirm()" [disabled]="printing">{{ printing ? '准备打印中…' : '确认打印' }}</button>
     </mat-dialog-actions>
-    <app-receipt [data]="[data]" #receipt></app-receipt>
+    <app-receipt [data]="[data]" [printerType]="printerType" #receipt></app-receipt>
   `,
   selector: 'diaglo-print-confirm',
   imports: [
     MatDialogTitle,
     MatDialogActions,
+    MatDialogContent,
     MatDialogClose,
     MatButtonModule,
-    ReceiptPrintComponent
+    ReceiptPrintComponent,
+    MatFormFieldModule,
+    MatSelectModule,
+    FormsModule
   ],
   standalone: true
 })
 class DialogPrintConfirmComponent{
+  printerType: PrinterType = 'A4';
+  printing = false;
   @ViewChild('receipt') receipt!:ReceiptPrintComponent;
   constructor(@Inject(MAT_DIALOG_DATA) public data: Order,
               private dialogRef: MatDialogRef<DialogPrintConfirmComponent>) {
   }
 
-  confirm(){
-    this.receipt.print();
+  async confirm(){
+    if (this.printing) return;
+    this.printing = true;
+    try {
+      await this.receipt.print();
+      this.dialogRef.close();
+    } finally {
+      this.printing = false;
+    }
   }
 }

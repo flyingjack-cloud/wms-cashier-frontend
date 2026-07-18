@@ -16,26 +16,31 @@ import {MatBadgeModule} from "@angular/material/badge";
 import {MatTooltipModule} from "@angular/material/tooltip";
 import {Role} from "../../../models/authority";
 import {AuthService} from "../../../services/auth.service";
+import {AsyncPipe} from "@angular/common";
 
 @Component({
   selector: 'app-cashier',
   standalone: true,
-  imports: [RouterModule, ToastComponent, MatSidenavModule, MatToolbarModule, MatListModule, MatIconModule, MatButtonModule, MatBadgeModule, MatTooltipModule],
+  imports: [RouterModule, AsyncPipe, ToastComponent, MatSidenavModule, MatToolbarModule, MatListModule, MatIconModule, MatButtonModule, MatBadgeModule, MatTooltipModule],
   templateUrl: './cashier.component.html',
   styleUrl: './cashier.component.scss'
 })
 export class CashierComponent implements OnInit, AfterViewInit{
+  readonly Role = Role;
   group: Observable<Group>;
+  role: Observable<Role>;
   requestUsers: number = 0;
 
   constructor(private authService: AuthService, private router: Router, private introService:IntroService,
               private groupService: GroupService, private userservice: UserService) {
     this.group = groupService.getGroup();
+    this.role = userservice.getRole();
   }
 
   ngOnInit(): void {
     // 每次刷新主界面时，重新获取group
     this.groupService._refresh();
+    this.userservice.refreshProfile();
     this.userservice.refreshRole();
     this.userservice.refreshPermission();
 

@@ -1,43 +1,60 @@
-<h1 class="order-confirm-header">订单详情</h1>
-<mat-divider></mat-divider>
+<h2>确认订单</h2>
+<form [formGroup]="orderConfirmForm">
+  <mat-form-field>
+    <mat-label>销售日期</mat-label>
+    <input matInput [matDatepicker]="picker" formControlName="date">
+    <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
+    <mat-datepicker #picker></mat-datepicker>
+  </mat-form-field>
+  <mat-form-field>
+    <mat-label>备注</mat-label>
+    <textarea matInput formControlName="remark"></textarea>
+  </mat-form-field>
 
-<div class="confirm-price-container">实收价格: <span class="confirm-price">￥ {{ this.totalSellingPrice | number: '1.2-2' }}</span></div>
+  @for (template of extraTemplates; track template.code) {
+    <section class="extra-template">
+      <mat-slide-toggle [(ngModel)]="selectedTemplates[template.code]" [ngModelOptions]="{ standalone: true }">
+        录入{{ template.name }}
+      </mat-slide-toggle>
+      @if (selectedTemplates[template.code]) {
+        <div class="extra-fields">
+          @for (field of template.schema.fields; track field.key) {
+            @switch (field.type) {
+              @case ('textarea') {
+                <mat-form-field><mat-label>{{ fieldLabel(field) }}</mat-label>
+                  <textarea matInput [(ngModel)]="extraPayloads[template.code][field.key]" [ngModelOptions]="{ standalone: true }" [required]="!!field.required"></textarea>
+                </mat-form-field>
+              }
+              @case ('select') {
+                <mat-form-field><mat-label>{{ fieldLabel(field) }}</mat-label>
+                  <mat-select [(ngModel)]="extraPayloads[template.code][field.key]" [ngModelOptions]="{ standalone: true }" [required]="!!field.required">
+                    @for (option of field.options || []; track option) { <mat-option [value]="option">{{ option }}</mat-option> }
+                  </mat-select>
+                </mat-form-field>
+              }
+              @case ('boolean') {
+                <mat-checkbox [(ngModel)]="extraPayloads[template.code][field.key]" [ngModelOptions]="{ standalone: true }">{{ fieldLabel(field) }}</mat-checkbox>
+              }
+              @default {
+                <mat-form-field><mat-label>{{ fieldLabel(field) }}</mat-label>
+                  <input matInput
+                    [type]="field.type === 'number' ? 'number' : field.type === 'date' ? 'date' : field.type === 'datetime' ? 'datetime-local' : 'text'"
+                    [(ngModel)]="extraPayloads[template.code][field.key]" [ngModelOptions]="{ standalone: true }" [required]="!!field.required">
+                </mat-form-field>
+              }
+            }
+          }
+        </div>
+      }
+    </section>
+  }
 
-<form class="order-confirm-form" [formGroup]="orderConfirmForm">
-    <mat-form-field appearance="outline">
-        <mat-label>销售日期:</mat-label>
-        <input matInput [matDatepicker]="picker" [max]="today" formControlName="date">
-        <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-    </mat-form-field>
-
-    <mat-form-field>
-        <mat-label>销售备注:</mat-label>
-        <textarea matInput type="text" formControlName="remark"></textarea>
-    </mat-form-field>
-
-    <button mat-raised-button color="primary" type="button" (click)="order()" [disabled]="!orderConfirmForm.valid || loading">提交</button>
+  <div class="actions">
+    <strong>合计：{{ totalSellingPrice | number:'1.2-2' }}</strong>
+    <button mat-raised-button color="primary" type="button" (click)="order()"
+      [disabled]="orderConfirmForm.invalid || loading || templatesLoading">提交并打印</button>
+  </div>
 </form>
 
-<mat-slide-toggle class="extra" [(ngModel)]="detailRequired">是否录入国补信息？</mat-slide-toggle>
-@if (detailRequired) {
-<mat-form-field class="extra">
-    <mat-label>客户姓名</mat-label>
-    <input matInput [(ngModel)]="customerDetail.name">
-</mat-form-field>
-
-<mat-form-field class="extra">
-    <mat-label>客户手机号</mat-label>
-    <input matInput [(ngModel)]="customerDetail.phone">
-</mat-form-field>
-
-<mat-form-field class="extra">
-    <mat-label>客户地址</mat-label>
-    <textarea matInput [(ngModel)]="customerDetail.address"> </textarea>
-</mat-form-field>
-}
-
 <app-receipt #receipt></app-receipt>
-@if(loading){
-  <mat-progress-bar mode="query"></mat-progress-bar>
-}
+@if (loading || templatesLoading) { <mat-progress-bar mode="query"></mat-progress-bar> }

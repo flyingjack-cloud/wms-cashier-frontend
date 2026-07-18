@@ -1,24 +1,23 @@
-import {CommonModule} from '@angular/common';
-import {Component, inject, Inject, OnInit, ViewChild} from '@angular/core';
-import {FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators} from '@angular/forms';
-import {MatIconModule} from '@angular/material/icon';
-import {MatInputModule} from '@angular/material/input';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import {MatDividerModule} from '@angular/material/divider';
-import {MatButtonModule} from '@angular/material/button';
-import {MatDatepickerModule} from '@angular/material/datepicker';
-import {MatNativeDateModule} from '@angular/material/core';
-import {OrderService} from "../../../../services/order.service";
-import {MatProgressSpinnerModule} from "@angular/material/progress-spinner";
-import {MatProgressBarModule} from "@angular/material/progress-bar";
-import {finalize} from "rxjs";
-import {ToastService} from "../../../../services/toast.service";
-import {MAT_DIALOG_DATA, MatDialogRef} from "@angular/material/dialog";
-import {Order} from "../../../../models/order";
-import {NgxPrintModule} from "ngx-print";
-import {ReceiptPrintComponent} from "../../../components/receipt/receipt-print.component";
-import {MatSlideToggleModule} from '@angular/material/slide-toggle';
-import { CustomerDetail } from 'src/app/models/customer';
+import { CommonModule } from '@angular/common';
+import { Component, inject, Inject, OnInit, ViewChild } from '@angular/core';
+import { FormBuilder, FormControl, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
+import { MatInputModule } from '@angular/material/input';
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule } from '@angular/material/core';
+import { MatProgressBarModule } from '@angular/material/progress-bar';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { MatSelectModule } from '@angular/material/select';
+import { MatCheckboxModule } from '@angular/material/checkbox';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
+import { firstValueFrom, forkJoin } from 'rxjs';
+import { OrderService } from '../../../../services/order.service';
+import { ToastService } from '../../../../services/toast.service';
+import { ReceiptService } from '../../../../services/receipt.service';
+import { Order } from '../../../../models/order';
+import { OrderExtra, OrderExtraField, OrderExtraTemplate } from '../../../../models/receipt';
+import { ReceiptPrintComponent } from '../../../components/receipt/receipt-print.component';
 
 interface OrderConfirmForm {
   date: FormControl<Date>;
@@ -28,88 +27,131 @@ interface OrderConfirmForm {
 @Component({
   selector: 'app-order-confirm',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, MatFormFieldModule, NgxPrintModule,
-    MatInputModule, MatIconModule, MatDividerModule, MatButtonModule, MatSlideToggleModule,
-    MatDatepickerModule, MatNativeDateModule, MatProgressSpinnerModule, MatProgressBarModule, ReceiptPrintComponent],
-  providers:[
-
-    ],
+  imports: [
+    CommonModule, ReactiveFormsModule, FormsModule, MatFormFieldModule, MatInputModule,
+    MatButtonModule, MatSlideToggleModule, MatSelectModule, MatCheckboxModule,
+    MatDatepickerModule, MatNativeDateModule, MatProgressBarModule, ReceiptPrintComponent,
+  ],
   templateUrl: './order-confirm.component.html',
-  styleUrl: './order-confirm.component.scss'
+  styleUrl: './order-confirm.component.scss',
 })
-export class OrderConfirmComponent implements OnInit{
+export class OrderConfirmComponent implements OnInit {
   private formBuilder = inject(FormBuilder);
-  totalSellingPrice: number = 0;
-  today = new Date();
-  loading:boolean = false; // 用于请求时控制允许提交
+  totalSellingPrice = 0;
+  loading = false;
+  templatesLoading = true;
+  extraTemplates: OrderExtraTemplate[] = [];
+  selectedTemplates: Record<string, boolean> = {};
+  extraPayloads: Record<string, Record<string, unknown>> = {};
 
-  @ViewChild("receipt") receipt!: ReceiptPrintComponent;
+  @ViewChild('receipt') receipt!: ReceiptPrintComponent;
 
-  orderConfirmForm:FormGroup<OrderConfirmForm> = this.formBuilder.nonNullable.group(
-    {
-      date: [this.today, Validators.required],
-      remark: [''],
-    });
+  orderConfirmForm: FormGroup<OrderConfirmForm> = this.formBuilder.nonNullable.group({
+    date: [new Date(), Validators.required],
+    remark: [''],
+  });
 
-  detailRequired:boolean = false;
-  customerDetail: CustomerDetail = {
-    name: "",
-    phone: "",
-    address: ""
-  }
-
-  constructor(@Inject(MAT_DIALOG_DATA) public data: { cart: Order[]},
-              private dialogRef: MatDialogRef<OrderConfirmComponent>,
-              private orderService:OrderService,
-              private toast: ToastService) {}
+  constructor(
+    @Inject(MAT_DIALOG_DATA) public data: { cart: Order[] },
+    private dialogRef: MatDialogRef<OrderConfirmComponent>,
+    private orderService: OrderService,
+    private receiptService: ReceiptService,
+    private toast: ToastService,
+  ) {}
 
   ngOnInit(): void {
-    this.data.cart.forEach((item: Order) => {
-      this.totalSellingPrice += item.sellingPrice;
+    this.totalSellingPrice = this.data.cart.reduce((sum, item) => sum + item.sellingPrice, 0);
+    this.receiptService.getExtraTemplates().subscribe({
+      next: templates => {
+        this.extraTemplates = templates;
+        for (const template of templates) {
+          this.selectedTemplates[template.code] = false;
+          this.extraPayloads[template.code] = Object.fromEntries(
+            template.schema.fields.map(field => [field.key, field.type === 'boolean' ? false : '']),
+          );
+        }
+        this.templatesLoading = false;
+      },
+      error: () => this.templatesLoading = false,
     });
   }
 
-  /**
-   * 提交订单
-   */
-  order() {
-    if (this.loading) {
-      return;
-    }
+  fieldLabel(field: OrderExtraField): string {
+    return field.label || field.key;
+  }
 
-    if (this.orderConfirmForm.invalid || this.data.cart.length == 0) {
+  async order(): Promise<void> {
+    if (this.loading) return;
+    if (this.orderConfirmForm.invalid || !this.data.cart.length || !this.validateExtras()) {
       this.orderConfirmForm.markAllAsTouched();
       return;
     }
 
     this.loading = true;
-    let orders: Order[] = [];
-
-    this.data.cart.forEach(or => orders.push({
+    let created = false;
+    const orders: Order[] = this.data.cart.map(item => ({
       id: -1,
-      merchandise: or.merchandise,
-      sellingPrice: or.sellingPrice,
-      remark: this.orderConfirmForm.value.remark!,
-      sellingTime: this.orderConfirmForm.value.date!,
-      returned: false
+      merchandise: item.merchandise,
+      sellingPrice: item.sellingPrice,
+      remark: this.orderConfirmForm.controls.remark.value,
+      sellingTime: this.orderConfirmForm.controls.date.value,
+      returned: false,
     }));
 
-    console.log("提交订单", orders);
+    try {
+      const ids = await firstValueFrom(this.orderService.batchOrder(orders));
+      created = true;
+      if (!Array.isArray(ids) || ids.length !== orders.length) throw new Error('订单 ID 数量与请求不一致');
+      orders.forEach((order, index) => order.id = ids[index]);
 
-    this.receipt.data = orders;
+      const selected = this.extraTemplates.filter(template => this.selectedTemplates[template.code]);
+      const saves = orders.flatMap(order => selected.map(template =>
+        this.receiptService.saveOrderExtra(order.id, template.code, this.payloadFor(template)),
+      ));
+      if (saves.length) await firstValueFrom(forkJoin(saves));
 
-    if(this.detailRequired){
-      this.receipt.customerDetail = this.customerDetail;
-    }
-
-    this.orderService.batchOrder(orders).pipe(
-      finalize(() => this.loading = false)
-    ).subscribe({
-      next: () => {
-        this.toast.push("提交成功", "success");
-        this.dialogRef.close({isSuccess: true});
-        this.receipt.print();
+      const extrasByOrder = new Map<number, OrderExtra[]>();
+      for (const order of orders) {
+        extrasByOrder.set(order.id, selected.map(template => ({
+          orderId: order.id,
+          templateCode: template.code,
+          templateName: template.name,
+          templateVersion: template.version,
+          payload: this.payloadFor(template),
+        })));
       }
-    });
+      this.receipt.data = orders;
+      this.receipt.extrasByOrder = extrasByOrder;
+      await this.receipt.print();
+      this.toast.push('提交成功', 'success');
+      this.dialogRef.close({ isSuccess: true });
+    } catch {
+      if (created) {
+        this.toast.push('订单已创建，但附加信息或打印未完成，请到历史账单补打', 'warning');
+        this.dialogRef.close({ isSuccess: true });
+      }
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  private validateExtras(): boolean {
+    for (const template of this.extraTemplates.filter(item => this.selectedTemplates[item.code])) {
+      for (const field of template.schema.fields) {
+        const value = this.extraPayloads[template.code][field.key];
+        if (field.required && (value == null || value === '')) {
+          this.toast.push(`${template.name}：${this.fieldLabel(field)}为必填项`, 'warning');
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  private payloadFor(template: OrderExtraTemplate): Record<string, unknown> {
+    return Object.fromEntries(template.schema.fields.flatMap(field => {
+      const value = this.extraPayloads[template.code][field.key];
+      return value === '' || value == null ? [] : [[field.key, value]];
+    }));
   }
 }

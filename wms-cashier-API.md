@@ -417,7 +417,7 @@ Batch create orders.
 ]
 ```
 
-**Response** `data: null`
+**Response** `data: int[]` — 新订单 ID，顺序与请求体中的订单顺序一致
 
 ---
 
