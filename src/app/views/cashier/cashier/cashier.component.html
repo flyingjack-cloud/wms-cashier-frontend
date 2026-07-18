@@ -41,6 +41,14 @@
           <div matListItemTitle>个人中心</div>
           <div matListItemLine>设置</div>
         </mat-list-item>
+
+        @if ((role | async) === Role.OWNER) {
+          <mat-list-item routerLink="/cashier/receipts">
+            <mat-icon matListItemIcon>receipt_long</mat-icon>
+            <div matListItemTitle>票据设置</div>
+            <div matListItemLine>打印排版</div>
+          </mat-list-item>
+        }
       </mat-nav-list>
     </mat-drawer>
 

@@ -111,10 +111,11 @@
     </ng-container>
 
     <ng-container matColumnDef="reprint">
-      <th mat-header-cell *matHeaderCellDef> 补打 </th>
+      <th mat-header-cell *matHeaderCellDef> 操作 </th>
       <td mat-cell *matCellDef="let order">
+        <button mat-icon-button type="button" color="primary" title="添加或修改附加信息" (click)="editExtra(order)"><mat-icon>edit_note</mat-icon></button>
         @if(!order.returned){
-          <button mat-icon-button type="button" color="accent" (click)="print(order)"><mat-icon>print</mat-icon></button>
+          <button mat-icon-button type="button" color="accent" title="补打票据" (click)="print(order)"><mat-icon>print</mat-icon></button>
         }
       </td>
     </ng-container>

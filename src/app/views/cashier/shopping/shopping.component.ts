@@ -83,11 +83,12 @@ export class ShoppingComponent implements AfterViewInit{
   orderConfirm() {
     const dialogRef = this.dialog.open<OrderConfirmComponent>(OrderConfirmComponent, {
       data: {cart: this.cart},
-      height: "800px",
-      width: "350px"
+      width: "720px",
+      maxWidth: "95vw",
+      maxHeight: "90vh"
     }).afterClosed().subscribe(
       result => {
-        if (result.isSuccess) {
+        if (result?.isSuccess) {
           location.reload(); //提交成功 刷新页面
         }
       });

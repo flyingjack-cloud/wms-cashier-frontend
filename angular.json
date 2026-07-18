@@ -78,8 +78,9 @@
             "development": {
               "buildTarget": "wms-cashier-frontend:build:development",
               "proxyConfig": "proxy.conf.json",
-	      "allowedHosts": [
+	            "allowedHosts": [
                 "wms.local",
+                "wms.test",
                 "localhost"
               ]
             }

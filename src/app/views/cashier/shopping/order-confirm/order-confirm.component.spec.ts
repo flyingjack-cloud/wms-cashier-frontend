@@ -7,19 +7,24 @@ import {MatDialogRef} from "@angular/material/dialog";
 import {MAT_DIALOG_DATA} from "@angular/material/dialog";
 import {provideAnimations} from "@angular/platform-browser/animations";
 import {By} from "@angular/platform-browser";
-import {cold, getTestScheduler} from "jasmine-marbles";
+import {of} from "rxjs";
 import {provideHttpClient} from "@angular/common/http";
 import {provideHttpClientTesting} from "@angular/common/http/testing";
+import {ReceiptService} from "../../../../services/receipt.service";
 
 describe('OrderConfirmComponent', () => {
   let component: OrderConfirmComponent;
   let fixture: ComponentFixture<OrderConfirmComponent>;
   let orderServiceMock: jasmine.SpyObj<OrderService>;
   let toastServiceMock: jasmine.SpyObj<ToastService>;
+  let receiptServiceMock: jasmine.SpyObj<ReceiptService>;
 
   beforeEach(async () => {
     orderServiceMock = jasmine.createSpyObj("orderServiceMock", ["batchOrder"]);
     toastServiceMock = jasmine.createSpyObj("ToastService", ["push"]);
+    receiptServiceMock = jasmine.createSpyObj("ReceiptService", ["getExtraTemplates", "saveOrderExtra"]);
+    receiptServiceMock.getExtraTemplates.and.returnValue(of([]));
+    receiptServiceMock.saveOrderExtra.and.returnValue(of({}));
 
     await TestBed.configureTestingModule({
       imports: [OrderConfirmComponent],
@@ -32,6 +37,7 @@ describe('OrderConfirmComponent', () => {
             ]}},
         { provide: OrderService, useValue: orderServiceMock },
         { provide: ToastService, useValue: toastServiceMock },
+        { provide: ReceiptService, useValue: receiptServiceMock },
         provideAnimations(),
         provideHttpClient(),
         provideHttpClientTesting()
@@ -44,16 +50,42 @@ describe('OrderConfirmComponent', () => {
     fixture.detectChanges();
   });
 
-  it('should update loading and call services(async)',  () => {
+  it('should omit empty optional extra fields before saving', async () => {
+    component.extraTemplates = [{
+      id: 1,
+      code: 'invoice',
+      name: '发票信息',
+      version: 1,
+      enabled: true,
+      schema: { fields: [
+        { key: 'title', label: '抬头', type: 'text', required: true },
+        { key: 'taxNo', label: '税号', type: 'text' },
+        { key: 'payMethod', label: '支付方式', type: 'select', options: ['现金'] },
+        { key: 'amount', label: '金额', type: 'number' },
+      ] },
+    }];
+    component.selectedTemplates = { invoice: true };
+    component.extraPayloads = { invoice: { title: '测试公司', taxNo: '', payMethod: '', amount: '' } };
+    orderServiceMock.batchOrder.and.returnValue(of([101, 102, 103]));
+    const receiptMock = jasmine.createSpyObj('ReceiptPrintComponent', ['print']);
+    receiptMock.print.and.returnValue(Promise.resolve());
+    component.receipt = receiptMock;
+
+    await component.order();
+
+    expect(receiptServiceMock.saveOrderExtra).toHaveBeenCalledTimes(3);
+    expect(receiptServiceMock.saveOrderExtra.calls.first().args).toEqual([101, 'invoice', { title: '测试公司' }]);
+  });
+
+  it('should update loading and call services(async)',  async () => {
     const receiptMock = jasmine.createSpyObj("ReceiptPrintComponent", ["print"]);
+    receiptMock.print.and.returnValue(Promise.resolve());
     component.receipt = receiptMock;
     component.orderConfirmForm.markAsTouched();
 
     // 正常数据流
-    orderServiceMock.batchOrder.and.returnValue(cold('---x|', {x: "success"}));
-    component.order();
-    expect(component.loading).toBe(true);
-    getTestScheduler().flush();
+    orderServiceMock.batchOrder.and.returnValue(of([101, 102, 103]));
+    await component.order();
     fixture.detectChanges();
 
     expect(component.loading).toBe(false);

@@ -14,6 +14,8 @@ import { StaffManageComponent } from './views/cashier/personal-center/staff-mana
 import { authGuard } from './guards/auth.guard';
 import { permissionGuard } from './guards/permission.guard';
 import { Permission } from './models/authority';
+import { ReceiptSettingsComponent } from './views/cashier/personal-center/receipt-settings/receipt-settings.component';
+import { ownerGuard } from './guards/owner.guard';
 
 export const routes: Routes = [
   { path: '', redirectTo: '/welcome', pathMatch: 'full' },
@@ -29,6 +31,7 @@ export const routes: Routes = [
       { path: 'shopping', component: ShoppingComponent, canActivate: [permissionGuard(Permission.SHOPPING)] },
       { path: 'inventory', component: InventoryComponent, canActivate: [permissionGuard(Permission.INVENTORY)] },
       { path: 'statistics', component: StatisticsComponent, canActivate: [permissionGuard(Permission.STATISTICS)] },
+      { path: 'receipts', component: ReceiptSettingsComponent, canActivate: [ownerGuard] },
       {
         path: 'center',
         component: PersonalCenterComponent,
